@@ -1,0 +1,2303 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Davranış Takip v7">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Öğrenci Davranış Takip v7</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --primary-light: #e0e7ff;
+      --success: #10b981;
+      --success-light: #d1fae5;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 18px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 20px -2px rgba(79, 70, 229, 0.1);
+      --shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.12);
+    }
+
+    :root[data-theme="dark"] {
+      --primary: #6366f1;
+      --primary-dark: #818cf8;
+      --primary-light: #312e81;
+      --success: #34d399;
+      --success-light: #064e3b;
+      --danger: #f87171;
+      --danger-light: #7f1d1d;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 20px -2px rgba(99, 102, 241, 0.2);
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    :root[data-theme="dark"] .seat-cell, :root[data-theme="dark"] .student-item, :root[data-theme="dark"] input, :root[data-theme="dark"] select, :root[data-theme="dark"] textarea {
+      background: var(--card-bg); color: var(--text-main);
+    }
+    :root[data-theme="dark"] .seat-cell.empty { background: #16213a; }
+    :root[data-theme="dark"] th { background: #16213a !important; color: var(--text-muted) !important; }
+
+    *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; }
+    html { line-height: 1.5; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; background-color: var(--bg); color: var(--text-main); min-height: 100vh; padding-bottom: 90px; }
+
+    header { 
+      position: sticky; top: 0; z-index: 30; 
+      background: rgba(79, 70, 229, 0.95); 
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      color: white; padding: 14px 18px; 
+      box-shadow: 0 4px 20px rgba(79, 70, 229, 0.25);
+      display: flex; justify-content: space-between; align-items: center; 
+    }
+    .header-title { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em; display:flex; align-items:center; gap:8px; }
+    .header-sub { font-size: 0.7rem; opacity: 0.85; font-weight: 500; margin-top:2px; }
+
+    main { max-width: 800px; margin: 0 auto; padding: 14px 10px; }
+    
+    .card { 
+      background: var(--card-bg); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; 
+      border: 1px solid var(--border); box-shadow: var(--shadow-sm); 
+    }
+    .card-title { font-size: 0.95rem; font-weight: 800; color: var(--text-main); margin: 0 0 12px 0; display: flex; align-items: center; justify-content: space-between; }
+
+    label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px; }
+    select, input, textarea { 
+      width: 100%; border: 1.5px solid var(--border); border-radius: 12px; padding: 11px 14px; font-size: 0.9rem; 
+      background-color: #f8fafc; color: var(--text-main); outline: none; transition: all 0.2s ease; margin-bottom: 8px; font-family: inherit;
+    }
+    select:focus, input:focus, textarea:focus { border-color: var(--primary); background-color: #ffffff; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.12); }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .grid-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .actions-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 8px; }
+
+    button, .btn { 
+      font-family: inherit; font-size: 0.85rem; font-weight: 700; padding: 12px 16px; border-radius: 14px; border: none; 
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; 
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); text-decoration: none; width: 100%; min-height: 46px;
+    }
+    button:active { transform: scale(0.96); }
+    .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #ffffff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25); }
+    .btn-primary:hover { opacity: 0.95; box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35); }
+    .btn-secondary { background-color: var(--primary-light); color: var(--primary-dark); }
+    .btn-muted { background-color: #f1f5f9; color: var(--text-muted); }
+    .btn-danger { background-color: var(--danger-light); color: var(--danger); }
+    .btn-undo { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e; font-weight: 800; border: 1px solid #fcd34d; }
+    .btn-sm { padding: 8px 12px; font-size: 0.775rem; border-radius: 10px; min-height: 36px; width: auto; }
+
+    .class-badges { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 10px; scrollbar-width: none; }
+    .class-badges::-webkit-scrollbar { display: none; }
+    .badge-btn { width: auto; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; background: #e2e8f0; color: #475569; min-height: 38px; }
+    .badge-btn.active { background: var(--primary); color: white; font-weight: 700; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
+
+    .live-card { 
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); color: white; 
+      border-radius: var(--radius); padding: 16px 20px; margin-bottom: 14px; 
+      box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.25); border: 1px solid rgba(255,255,255,0.08);
+    }
+    .live-timer { font-size: 1.25rem; font-weight: 800; color: #818cf8; font-variant-numeric: tabular-nums; }
+
+    .student-item { 
+      display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--border); 
+      border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; background-color: #ffffff; 
+      transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.01);
+    }
+    .student-item:hover { border-color: #cbd5e1; transform: translateY(-1px); }
+    .student-item.selected { border-color: var(--primary); background-color: #f5f3ff; }
+    .student-info { display: flex; align-items: center; gap: 12px; flex-grow: 1; cursor: pointer; }
+    .student-checkbox { width: 22px; height: 22px; cursor: pointer; accent-color: var(--primary); border-radius: 6px; }
+    .student-name { font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
+    .student-meta { font-size: 0.775rem; color: var(--text-muted); font-weight: 500; margin-top:2px; }
+    .quick-actions { display: flex; gap: 6px; align-items: center; }
+
+    .behavior-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .btn-behavior { 
+      min-height: 54px; text-align: left; justify-content: flex-start; background: #ffffff; 
+      border: 1.5px solid var(--border); border-left-width: 6px; padding: 10px 14px; 
+      font-size: 0.85rem; font-weight: 600; color: var(--text-main); border-radius: 14px;
+    }
+    .btn-behavior.neg { border-left-color: var(--danger); }
+    .btn-behavior.pos { border-left-color: var(--success); }
+    .btn-behavior:hover { background-color: #f8fafc; border-color: #cbd5e1; }
+
+    .drawer { 
+      position: fixed; bottom: 0; left: 0; right: 0; background: white; 
+      border-top-left-radius: 28px; border-top-right-radius: 28px; 
+      box-shadow: var(--shadow-lg); padding: 20px 16px 30px 16px; z-index: 100; max-height: 90vh; 
+      overflow-y: auto; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+    }
+    .drawer.open { transform: translateY(0); }
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); z-index: 90; display: none; }
+    .drawer-overlay.open { display: block; }
+
+    .table-container { overflow-x: auto; margin-top: 8px; border-radius: 12px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+    th { background-color: #f8fafc; font-weight: 700; color: var(--text-muted); text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
+    .hidden { display: none !important; }
+    .notice { font-size: 0.775rem; color: var(--text-muted); font-weight: 500; }
+    .pill { background-color: var(--primary-light); color: var(--primary-dark); padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 800; }
+    
+    #toast { 
+      position: fixed; top: 20px; right: 20px; background-color: #0f172a; color: white; 
+      padding: 12px 20px; border-radius: 14px; font-size: 0.85rem; font-weight: 700; 
+      box-shadow: var(--shadow-lg); display: none; z-index: 200; border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 640px) { .grid-2, .behavior-grid { grid-template-columns: 1fr; } }
+
+    .seating-grid { display: grid; gap: 8px; margin-top: 4px; }
+    .seat-cell {
+      position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 5px; min-height: 92px; padding: 10px 6px; border-radius: 16px; border: 1px solid var(--border);
+      background: #ffffff; cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+    .seat-cell:hover { border-color: #c7d2fe; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.14); }
+    .seat-cell:active { transform: scale(0.95); }
+    .seat-avatar {
+      width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #fff;
+      font-size: 0.75rem; font-weight: 800; letter-spacing: 0.02em;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .seat-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .seat-avatar.seat-avatar-empty { background: transparent; border: 1.5px dashed #cbd5e1; color: var(--text-muted); font-weight: 600; }
+    .seat-name {
+      font-size: 0.725rem; font-weight: 700; color: var(--text-main); text-align: center; line-height: 1.2;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      word-break: break-word; max-width: 100%; letter-spacing: -0.01em;
+    }
+    .seat-cell.empty { border-style: dashed; background: #f8fafc; box-shadow: none; cursor: default; }
+    .seat-cell.empty:hover { transform: none; box-shadow: none; border-color: #cbd5e1; }
+    .seat-cell.empty .seat-name { color: var(--text-muted); font-weight: 500; }
+    .seat-cell.seat-selected { border-color: var(--primary); border-width: 2px; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.15); }
+    .seat-cell.seat-dragging-source { opacity: 0.35; }
+    .seat-cell.seat-drag-over { border-color: var(--primary); background: var(--primary-light); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25); }
+    .seat-ghost { position: fixed; z-index: 500; pointer-events: none; opacity: 0.92; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.35); transform: scale(1.06); }
+    .seat-delete {
+      position: absolute; top: -6px; left: -6px; width: 20px; height: 20px; border-radius: 50%;
+      background: #64748b; color: #fff; font-size: 0.75rem; font-weight: 800; line-height: 20px; text-align: center;
+      border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.25); z-index: 2;
+    }
+    button:disabled, .btn-sm:disabled { opacity: 0.4; cursor: not-allowed; }
+    .seat-alert {
+      position: absolute; top: -5px; right: -5px; min-width: 20px; height: 20px; padding: 0 4px; border-radius: 10px;
+      background: var(--danger); color: #fff; font-size: 0.65rem; font-weight: 800; line-height: 20px; text-align: center;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25); border: 2px solid #fff;
+    }
+    .view-toggle-active { background: var(--primary) !important; color: #fff !important; }
+    
+    .record-img-thumb { width: 40px; height: 40px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); transition: transform 0.2s; }
+    .record-img-thumb:hover { transform: scale(1.08); }
+
+    .mobile-thumb-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border); padding: 10px 16px; display: flex; justify-content: space-around; align-items: center; z-index: 40;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+    }
+    :root[data-theme="dark"] .mobile-thumb-bar { background: rgba(30, 41, 59, 0.92); }
+    .thumb-btn { background: none; border: none; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; width: auto; min-height: auto; padding: 4px; }
+    .thumb-btn span { font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+
+<div id="lockScreen" class="hidden" style="position:fixed; inset:0; z-index:9999; background:linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center;">
+  <div style="font-size:2.6rem; margin-bottom:8px;">🔒</div>
+  <div style="color:#fff; font-weight:800; font-size:1.15rem; margin-bottom:4px;">Uygulama Kilitli</div>
+  <div style="color:rgba(255,255,255,0.8); font-size:0.8rem; margin-bottom:20px;">Devam etmek için PIN girin</div>
+  <input id="lockPinInput" type="password" inputmode="numeric" maxlength="6" placeholder="••••" autocomplete="off"
+    style="text-align:center; font-size:1.5rem; letter-spacing:0.35em; width:170px; padding:12px; border-radius:12px; border:none; margin-bottom:10px;">
+  <div id="lockError" style="color:#fecaca; font-size:0.75rem; margin-bottom:14px; min-height:16px;"></div>
+  <button class="btn-primary" style="width:170px; background:#fff; color:var(--primary); font-weight:800;" onclick="attemptUnlock()">Kilidi Aç</button>
+</div>
+
+<header>
+  <div>
+    <div class="header-title">✨ Davranış Takip v7</div>
+    <div class="header-sub">Sınıf Yönetim Asistanı</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:8px;">
+    <label style="color:white; font-size:0.75rem; margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
+      <input type="checkbox" id="soundToggle" checked style="width:auto; margin:0; accent-color:white;"> 🔊 Ses
+    </label>
+    <button id="themeToggleBtn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.15); border:none; color:#fff; width:36px; height:36px; border-radius:50%; font-size:1rem; cursor:pointer;">🌙</button>
+  </div>
+</header>
+
+<main>
+  <section id="backupBanner" class="hidden" style="background:#fef3c7; border:1.5px solid #fcd34d; border-radius:14px; padding:12px 14px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+    <span style="font-size:0.8rem; font-weight:700; color:#92400e;" id="backupBannerText"></span>
+    <button class="btn-sm" style="width:auto; background:#f59e0b; color:#fff; font-weight:800; padding:6px 12px;" onclick="exportBackupJSON()">💾 Şimdi Yedekle</button>
+  </section>
+
+  <section class="live-card" id="liveCard">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8;">Aktif Ders Saati</span>
+      <span class="live-timer" id="liveTimer">--:--</span>
+    </div>
+    <div id="liveInfo" style="font-size: 1.05rem; font-weight: 800; margin-top: 6px;">Program Yüklenmedi</div>
+  </section>
+
+  <section id="undoSection" class="hidden" style="margin-bottom: 14px;">
+    <button class="btn-undo" onclick="undoLastRecord()">
+      ↺ Son Kaydı Geri Al (<span id="undoText"></span>)
+    </button>
+  </section>
+
+  <section class="card hidden" id="trendCard" style="border: 1.5px solid #fecaca;">
+    <div class="card-title">📈 Trend Uyarıları <span class="notice">(Son 7 gün)</span></div>
+    <div id="trendBody"></div>
+  </section>
+
+  <section class="card">
+    <label>Sınıf Seçimi</label>
+    <div class="class-badges" id="classBadges"></div>
+
+    <div class="grid-2">
+      <div>
+        <label for="classSel">Sınıf Listesi</label>
+        <select id="classSel"></select>
+      </div>
+      <div>
+        <label for="lessonSel">Aktif Ders</label>
+        <select id="lessonSel">
+          <option>Sosyal Bilgiler</option>
+          <option>T.C. İnkılap Tarihi ve Atatürkçülük</option>
+          <option>Diğer</option>
+        </select>
+      </div>
+    </div>
+    
+    <div style="margin-top: 4px;">
+      <label for="search">Hızlı Öğrenci Ara</label>
+      <input id="search" placeholder="İsim veya okul no giriniz...">
+    </div>
+  </section>
+
+  <section class="card" style="padding: 12px 16px;" id="bulkToolbar">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <input type="checkbox" id="selectAll" style="width: 22px; height: 22px; margin: 0; accent-color: var(--primary);" onchange="toggleSelectAll(this.checked)">
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-main);">Tümünü Seç</span>
+        <span class="pill" id="selectedCount">0 seçili</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-secondary btn-sm" onclick="openStudentModal()">+ Öğrenci</button>
+        <button class="btn-primary btn-sm" onclick="openMultiBehavior()">Toplu Davranış</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title">
+      <span id="listTitle">Öğrenciler</span>
+      <div style="display:flex; gap:4px;">
+        <button class="btn-muted btn-sm" id="viewListBtn" style="width:auto; padding:6px 12px;" onclick="setViewMode('list')" title="Liste görünümü">📋 Liste</button>
+        <button class="btn-muted btn-sm" id="viewGridBtn" style="width:auto; padding:6px 12px;" onclick="setViewMode('grid')" title="Oturma planı görünümü">🔲 Oturma Planı</button>
+      </div>
+    </div>
+    <div id="students"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-title">📊 Bugünkü Ders Özeti</div>
+    <div class="grid-stats">
+      <div style="background:#f0fdf4; padding:12px; border-radius:14px; text-align:center; border:1px solid #d1fae5;">
+        <div style="font-size:1.35rem; font-weight:800; color:#10b981;" id="summaryPos">0</div>
+        <div style="font-size:0.675rem; color:#047857; font-weight:800;">OLUMLU</div>
+      </div>
+      <div style="background:#fef2f2; padding:12px; border-radius:14px; text-align:center; border:1px solid #fee2e2;">
+        <div style="font-size:1.35rem; font-weight:800; color:#ef4444;" id="summaryNeg">0</div>
+        <div style="font-size:0.675rem; color:#b91c1c; font-weight:800;">OLUMSUZ</div>
+      </div>
+      <div style="background:#e0e7ff; padding:12px; border-radius:14px; text-align:center; border:1px solid #c7d2fe;">
+        <div style="font-size:1.35rem; font-weight:800; color:#4f46e5;" id="summaryTotal">0</div>
+        <div style="font-size:0.675rem; color:#3730a3; font-weight:800;">TOPLAM</div>
+      </div>
+    </div>
+    <div id="summaryTopBehavior" class="notice" style="margin-top:10px; font-weight:600; text-align:center;">
+      Henüz kayıt yapılmadı.
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-title">⚙️ Sistem & Bulut Yedek Yönetimi</div>
+
+    <label for="schoolNameInput">Okul Adı (Sevk Formu / Rapor başlığında görünür)</label>
+    <input id="schoolNameInput" placeholder="Örn: ... Ortaokulu" onchange="saveInstitutionInfo()">
+    <label for="teacherNameInput">Öğretmen Adı / Branşı</label>
+    <input id="teacherNameInput" placeholder="Örn: Ad Soyad - Branş" onchange="saveInstitutionInfo()">
+
+    <div class="actions-grid" style="margin-top:12px;">
+      <button class="btn-primary" onclick="exportBackupJSON()">💾 Verileri Yedekle</button>
+      <button class="btn-secondary" onclick="document.getElementById('jsonInput').click()">📂 Yedek Yükle</button>
+      <input id="jsonInput" type="file" accept=".json" class="hidden">
+      
+      <button class="btn-muted" onclick="openBehaviorManager()">⚙️ Davranış Ayarları</button>
+      <button class="btn-muted" onclick="showReports()">📊 Kanaat & Rapor</button>
+      <button class="btn-muted" id="pinBtn" onclick="setupPinLock()">🔒 PIN Kilidi Kur</button>
+      <button class="btn-secondary" onclick="document.getElementById('excel').click()">📥 Excel Yükle</button>
+      <input id="excel" type="file" accept=".xlsx,.xls,.csv" class="hidden">
+      
+      <button class="btn-secondary" onclick="document.getElementById('scheduleFile').click()">🗓️ Program Yükle</button>
+      <input id="scheduleFile" type="file" accept=".xlsx,.xls,.csv" class="hidden">
+      
+      <button class="btn-secondary" onclick="exportCSV()">📤 Excel Aktar</button>
+      <button class="btn-muted" onclick="archivePeriod()">📦 Dönemi Arşivle</button>
+      <button class="btn-danger" onclick="clearAll()">🗑️ Verileri Sıfırla</button>
+    </div>
+  </section>
+
+  <section class="card hidden" id="reportCard">
+    <div class="card-title">📊 Kanaat & Rapor Paneli</div>
+    <div style="display:flex; gap:6px; margin-bottom:12px; overflow-x:auto;">
+      <button class="badge-btn" onclick="setDateFilter('today')">Bugün</button>
+      <button class="badge-btn" onclick="setDateFilter('week')">Bu Hafta</button>
+      <button class="badge-btn" onclick="setDateFilter('month')">Bu Ay</button>
+      <button class="badge-btn" onclick="setDateFilter('all')">Tüm Zamanlar</button>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <label for="reportClass">Sınıf</label>
+        <select id="reportClass"></select>
+      </div>
+      <div>
+        <label for="reportStudent">Öğrenci</label>
+        <select id="reportStudent"><option value="">Tüm Öğrenciler (Sınıf Karnesi)</option></select>
+      </div>
+      <div>
+        <label for="reportFrom">Başlangıç</label>
+        <input type="date" id="reportFrom">
+      </div>
+      <div>
+        <label for="reportTo">Bitiş</label>
+        <input type="date" id="reportTo">
+      </div>
+    </div>
+    <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+      <button class="btn-primary" onclick="buildReport()">Rapor Oluştur</button>
+      <button class="btn-secondary" onclick="printReport()">🖨️ Yazdır / Estetik PDF</button>
+      <button class="btn-secondary" style="background:#047857; color:#fff;" onclick="printClassSummaryReport()">📑 Toplu Sınıf Karnesi PDF</button>
+    </div>
+    <div id="report" style="margin-top: 14px;"></div>
+    <button class="btn-muted" style="margin-top: 10px;" onclick="document.getElementById('reportCard').classList.add('hidden')">Kapat</button>
+  </section>
+
+  <section class="card">
+    <div class="card-title">📋 Son İşlem Kayıtları</div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr><th>Tarih</th><th>Öğrenci</th><th>Sınıf</th><th>Ders</th><th>Kategori</th><th>Davranış</th><th>Kanıt</th><th>Not</th><th></th></tr>
+        </thead>
+        <tbody id="records"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="mobile-thumb-bar">
+  <button class="thumb-btn" onclick="window.scrollTo({top:0, behavior:'smooth'})"><span>🏠</span>Başta</button>
+  <button class="thumb-btn" onclick="showReports()"><span>📊</span>Raporlar</button>
+  <button class="thumb-btn" onclick="openStudentModal()"><span>👤</span>+ Öğrenci</button>
+  <button class="thumb-btn" onclick="toggleTheme()"><span>🌓</span>Tema</button>
+</div>
+
+<!-- Alt Davranış Paneli (Modal Drawer) -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h3 id="drawerTitle" style="margin:0; font-size:1.1rem; font-weight:800; color:var(--text-main);">Davranış Seçimi</h3>
+    <button class="btn-muted" style="width:auto; padding:8px 14px; border-radius:50%; min-height:auto;" onclick="closeDrawer()">✕</button>
+  </div>
+
+  <div style="margin-bottom: 12px;">
+    <label for="behaviorCategory">Davranış Kategorisi</label>
+    <select id="behaviorCategory">
+      <option value="Akademik">📚 Akademik / Ders Başarısı</option>
+      <option value="Disiplin">⚠️ Disiplin / Uyum</option>
+      <option value="Sosyal">🤝 Sosyal / İlişkiler</option>
+      <option value="Kılık-Kıyafet">👔 Kılık - Kıyafet / Hijyen</option>
+      <option value="Diğer" selected>📌 Diğer</option>
+    </select>
+  </div>
+
+  <div style="margin-bottom: 14px;">
+    <label for="note">Özel Not / Açıklama</label>
+    <textarea id="note" rows="2" placeholder="Notunuzu yazın..."></textarea>
+    
+    <div style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+      <label class="btn-secondary btn-sm" style="margin:0; cursor:pointer; width:auto;">
+        📷 Kanıt / Fotoğraf Ekle <input type="file" id="drawerImgInput" accept="image/*" class="hidden" onchange="handleImagePreview(this)">
+      </label>
+      <span id="imgStatus" class="notice"></span>
+      <button id="removeImgBtn" class="btn-danger btn-sm hidden" style="width:auto;" onclick="clearDrawerImage()">Kaldır</button>
+    </div>
+    <div id="drawerImgPreviewContainer" style="margin-top:6px;" class="hidden">
+      <img id="drawerImgPreview" style="max-height:80px; border-radius:8px; border:1px solid var(--border);">
+    </div>
+
+    <button class="btn-muted btn-sm" style="width:auto; margin-top:8px; min-height:40px;" onclick="saveNoteOnly()">📝 Davranış Seçmeden Sadece Not/Görsel Kaydet</button>
+  </div>
+
+  <div id="frequentSection" class="hidden" style="margin-bottom:12px;">
+    <label>⚡ Sık Kullanılanlar</label>
+    <div class="behavior-grid" id="frequentBehaviors"></div>
+  </div>
+
+  <label>Tüm Davranış Havuzu</label>
+  <div class="behavior-grid" id="allBehaviors"></div>
+</div>
+
+<!-- Öğrenci Modal (Fotoğraf Destekli) -->
+<div class="drawer-overlay" id="studentModalOverlay" onclick="closeStudentModal()"></div>
+<div class="drawer" id="studentModal">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h3 id="studentModalTitle" style="margin:0; font-size:1.1rem; font-weight:800;">Öğrenci Bilgisi</h3>
+    <button class="btn-muted" style="width:auto; padding:8px 14px; border-radius:50%; min-height:auto;" onclick="closeStudentModal()">✕</button>
+  </div>
+  <input type="hidden" id="editStudentId">
+  <label>Adı Soyadı</label>
+  <input id="editStudentName" placeholder="Örn: Ahmet Yılmaz">
+  <label>Sınıfı / Şubesi</label>
+  <input id="editStudentClass" placeholder="Örn: 7-A">
+  <label>Öğrenci No</label>
+  <input id="editStudentNo" placeholder="Örn: 105">
+  
+  <label style="margin-top:8px;">Öğrenci Vesikalık Fotoğrafı (Oturma Planı İçin)</label>
+  <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+    <label class="btn-secondary btn-sm" style="margin:0; cursor:pointer; width:auto;">
+      📷 Fotoğraf Seç <input type="file" id="studentPhotoInput" accept="image/*" class="hidden" onchange="handleStudentPhotoPreview(this)">
+    </label>
+    <span id="studentPhotoStatus" class="notice"></span>
+    <button id="removeStudentPhotoBtn" class="btn-danger btn-sm hidden" style="width:auto;" onclick="clearStudentPhoto()">Kaldır</button>
+  </div>
+  <div id="studentPhotoPreviewContainer" class="hidden" style="margin-bottom:10px;">
+    <img id="studentPhotoPreview" style="width:60px; height:60px; object-fit:cover; border-radius:50%; border:1px solid var(--border);">
+  </div>
+
+  <button class="btn-primary" style="margin-top:10px;" onclick="saveStudent()">Kaydet</button>
+</div>
+
+<!-- Kayıt Düzenleme Modal -->
+<div class="drawer-overlay" id="recordEditOverlay" onclick="closeRecordEdit()"></div>
+<div class="drawer" id="recordEditModal">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h3 style="margin:0; font-size:1.1rem; font-weight:800;">Kaydı Düzenle</h3>
+    <button class="btn-muted" style="width:auto; padding:8px 14px; border-radius:50%; min-height:auto;" onclick="closeRecordEdit()">✕</button>
+  </div>
+  <input type="hidden" id="editRecordId">
+  <label>Tarih</label>
+  <input id="editRecordDate" disabled style="opacity:0.7;">
+  <label>Kategori</label>
+  <select id="editRecordCategory">
+    <option value="Akademik">📚 Akademik / Ders Başarısı</option>
+    <option value="Disiplin">⚠️ Disiplin / Uyum</option>
+    <option value="Sosyal">🤝 Sosyal / İlişkiler</option>
+    <option value="Kılık-Kıyafet">👔 Kılık - Kıyafet / Hijyen</option>
+    <option value="Diğer">📌 Diğer</option>
+  </select>
+  <label>Davranış Açıklaması</label>
+  <input id="editRecordBehavior" placeholder="Örn: Derse hazırlıksız geldi">
+  <label>Puan</label>
+  <select id="editRecordScore">
+    <option value="1">🟢 Olumlu</option>
+    <option value="-1">🔴 Olumsuz</option>
+    <option value="0">📝 Nötr (sadece not)</option>
+  </select>
+  <label>Not</label>
+  <textarea id="editRecordNote" rows="2"></textarea>
+  <div style="display:flex; gap:8px; margin-top:12px;">
+    <button class="btn-primary" style="flex:1;" onclick="saveRecordEdit()">Kaydet</button>
+    <button class="btn-danger" style="flex:1;" onclick="deleteRecordFromModal()">🗑️ Sil</button>
+  </div>
+</div>
+
+<!-- Veli Bilgilendirme ve İletişim Geçmişi Modal -->
+<div class="drawer-overlay" id="parentMsgOverlay" onclick="closeParentMsg()"></div>
+<div class="drawer" id="parentMsgModal">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h3 style="margin:0; font-size:1.1rem; font-weight:800;">✉️ Veli Bilgilendirme & İletişim Geçmişi</h3>
+    <button class="btn-muted" style="width:auto; padding:8px 14px; border-radius:50%; min-height:auto;" onclick="closeParentMsg()">✕</button>
+  </div>
+  <div class="notice" style="margin-bottom:8px;">Mesajı kopyalayıp gönderdiğinizde bu öğrenci için iletişim geçmişine otomatik kaydedilir.</div>
+  <textarea id="parentMsgText" rows="7" style="font-size:0.85rem; margin-bottom:10px;"></textarea>
+  <button class="btn-primary" style="margin-bottom:14px;" onclick="copyParentMsgAndLog()">📋 Metni Kopyala ve İletişimi Kaydet</button>
+  
+  <div style="border-top:1px solid var(--border); padding-top:10px;">
+    <div style="font-weight:800; font-size:0.8rem; margin-bottom:6px; color:var(--text-muted);">GEÇMİŞ İLETİŞİMLER</div>
+    <div id="parentLogContainer" style="max-height:150px; overflow-y:auto; font-size:0.775rem;"></div>
+  </div>
+</div>
+
+<!-- Rehberlik Servisi / İdareye Sevk Formu Modal -->
+<div class="drawer-overlay" id="guidanceModalOverlay" onclick="closeGuidanceModal()"></div>
+<div class="drawer" id="guidanceModal">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h3 style="margin:0; font-size:1.1rem; font-weight:800;">📄 Rehberlik / İdareye Sevk Formu</h3>
+    <button class="btn-muted" style="width:auto; padding:8px 14px; border-radius:50%; min-height:auto;" onclick="closeGuidanceModal()">✕</button>
+  </div>
+  <div class="notice" style="margin-bottom:8px;">Aşağıdaki resmi tutanak/sevk belgesini doğrudan yazdırabilir veya çıktı alabilirsiniz.</div>
+  <div id="guidanceContentContainer" style="background:#fff; border:1px solid var(--border); padding:16px; border-radius:12px; max-height:40vh; overflow-y:auto; font-size:0.825rem; color:#1e293b; margin-bottom:12px;"></div>
+  <div style="display:flex; gap:8px;">
+    <button class="btn-primary" style="flex:1;" onclick="printGuidanceForm()">🖨️ Yazdır / Resmi Çıktı</button>
+    <button class="btn-muted" style="flex:1;" onclick="closeGuidanceModal()">Kapat</button>
+  </div>
+</div>
+
+<!-- Davranış Yönetimi Modal -->
+<div class="drawer-overlay" id="behaviorModalOverlay" onclick="closeBehaviorModal()"></div>
+<div class="drawer" id="behaviorModal">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <h3 style="margin:0; font-size:1.1rem; font-weight:800;">Davranış Ayarları</h3>
+    <button class="btn-muted" style="width:auto; padding:8px 14px; border-radius:50%; min-height:auto;" onclick="closeBehaviorModal()">✕</button>
+  </div>
+  <div style="display:flex; gap:8px; margin-bottom:14px;">
+    <input id="newBehaviorText" placeholder="Yeni davranış adı..." style="margin:0;">
+    <select id="newBehaviorScore" style="width:100px; margin:0;">
+      <option value="1">🟢 +1</option>
+      <option value="-1">🔴 -1</option>
+    </select>
+    <button class="btn-primary" style="width:auto; padding:0 16px;" onclick="addNewBehavior()">Ekle</button>
+  </div>
+  <div id="behaviorList" style="max-height:260px; overflow-y:auto;"></div>
+</div>
+
+<div class="drawer-overlay" id="imgModalOverlay" onclick="closeImgModal()" style="display:none; align-items:center; justify-content:center; z-index:1000;">
+  <div style="position:relative; max-width:90%; max-height:90%; text-align:center;" onclick="event.stopPropagation()">
+    <button class="btn-muted" style="position:absolute; top:-40px; right:0; border-radius:50%; width:36px; height:36px;" onclick="closeImgModal()">✕</button>
+    <img id="fullScreenImg" style="max-width:100%; max-height:80vh; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.5);">
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const KEY = 'ogrenci_davranis_v7';
+const defaultBehaviors = [
+  ['Derste konuştu', -1], ['Dikkat dağıttı', -1], ['Kitap getirmedi', -1],
+  ['Defter getirmedi', -1], ['Not tutmadı', -1], ['Ödev yapmadı', -1],
+  ['Derse katılmadı', -1], ['Arkadaşını rahatsız etti', -1], ['Geç geldi', -1],
+  ['Olumlu davranış gösterdi', 1], ['Derse aktif katıldı', 1], ['Ödevini eksiksiz yaptı', 1]
+];
+
+let data = JSON.parse(localStorage.getItem(KEY) || JSON.stringify({
+  students: [],
+  records: [],
+  parentLogs: {}, // { "Öğrenci Adı|Sınıf": [ {date, note} ] }
+  customBehaviors: defaultBehaviors
+}));
+
+if (!data.customBehaviors) data.customBehaviors = defaultBehaviors;
+if (!data.parentLogs) data.parentLogs = {};
+
+let schedule = JSON.parse(localStorage.getItem('ogrenci_davranis_schedule_v7') || '[]');
+let selectedStudentIds = new Set();
+let activeTargetStudent = null;
+let isMultiSelectMode = false;
+let currentDrawerImageBase64 = null;
+let currentStudentPhotoBase64 = null;
+
+let seatingPlans = JSON.parse(localStorage.getItem('ogrenci_davranis_seating_v7') || '{}');
+let viewMode = localStorage.getItem('ogrenci_davranis_viewmode_v7') || 'list';
+let gridInteractionMode = 'normal';
+let lastReportGrouped = {};
+
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(data));
+  render();
+}
+
+function toast(msg) {
+  let x = document.getElementById('toast');
+  x.textContent = msg;
+  x.style.display = 'block';
+  setTimeout(() => x.style.display = 'none', 2000);
+}
+
+let audioCtx = null;
+function triggerFeedback() {
+  if (navigator.vibrate) navigator.vibrate(30);
+  if (document.getElementById('soundToggle').checked) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      let ctx = audioCtx;
+      let osc = ctx.createOscillator();
+      let gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 587.33;
+      gain.gain.setValueAtTime(0.06, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.1);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.1);
+    } catch(e){}
+  }
+}
+
+function handleImagePreview(input) {
+  let file = input.files[0];
+  if (!file) return;
+  let reader = new FileReader();
+  reader.onload = function(e) {
+    let img = new Image();
+    img.onload = function() {
+      let canvas = document.createElement('canvas');
+      let ctx = canvas.getContext('2d');
+      let MAX_WIDTH = 800, MAX_HEIGHT = 800;
+      let width = img.width, height = img.height;
+      if (width > height) { if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; } }
+      else { if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; } }
+      canvas.width = width; canvas.height = height;
+      ctx.drawImage(img, 0, 0, width, height);
+      currentDrawerImageBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      
+      document.getElementById('drawerImgPreview').src = currentDrawerImageBase64;
+      document.getElementById('drawerImgPreviewContainer').classList.remove('hidden');
+      document.getElementById('removeImgBtn').classList.remove('hidden');
+      document.getElementById('imgStatus').textContent = 'Kanıt eklendi ✓';
+    }
+    img.src = e.target.result;
+  }
+  reader.readAsDataURL(file);
+}
+
+function clearDrawerImage() {
+  currentDrawerImageBase64 = null;
+  document.getElementById('drawerImgInput').value = '';
+  document.getElementById('drawerImgPreview').src = '';
+  document.getElementById('drawerImgPreviewContainer').classList.add('hidden');
+  document.getElementById('removeImgBtn').classList.add('hidden');
+  document.getElementById('imgStatus').textContent = '';
+}
+
+function handleStudentPhotoPreview(input) {
+  let file = input.files[0];
+  if (!file) return;
+  let reader = new FileReader();
+  reader.onload = function(e) {
+    let img = new Image();
+    img.onload = function() {
+      let canvas = document.createElement('canvas');
+      let ctx = canvas.getContext('2d');
+      let size = 200; // Kare vesikalık boyutlandırma
+      canvas.width = size; canvas.height = size;
+      let minEdge = Math.min(img.width, img.height);
+      let startX = (img.width - minEdge) / 2;
+      let startY = (img.height - minEdge) / 2;
+      ctx.drawImage(img, startX, startY, minEdge, minEdge, 0, 0, size, size);
+      currentStudentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.75);
+
+      document.getElementById('studentPhotoPreview').src = currentStudentPhotoBase64;
+      document.getElementById('studentPhotoPreviewContainer').classList.remove('hidden');
+      document.getElementById('removeStudentPhotoBtn').classList.remove('hidden');
+      document.getElementById('studentPhotoStatus').textContent = 'Fotoğraf hazır ✓';
+    }
+    img.src = e.target.result;
+  }
+  reader.readAsDataURL(file);
+}
+
+function clearStudentPhoto() {
+  currentStudentPhotoBase64 = null;
+  document.getElementById('studentPhotoInput').value = '';
+  document.getElementById('studentPhotoPreview').src = '';
+  document.getElementById('studentPhotoPreviewContainer').classList.add('hidden');
+  document.getElementById('removeStudentPhotoBtn').classList.add('hidden');
+  document.getElementById('studentPhotoStatus').textContent = '';
+}
+
+function openImgModal(src) {
+  document.getElementById('fullScreenImg').src = src;
+  document.getElementById('imgModalOverlay').style.display = 'flex';
+}
+
+function closeImgModal() {
+  document.getElementById('imgModalOverlay').style.display = 'none';
+}
+
+const TREND_WINDOW_DAYS = 7;
+const TREND_NEG_THRESHOLD = 3;
+
+function computeStudentWindowCounts(days, offsetDays) {
+  let end = new Date(); end.setDate(end.getDate() - offsetDays); end.setHours(23, 59, 59, 999);
+  let start = new Date(); start.setDate(start.getDate() - offsetDays - days + 1); start.setHours(0, 0, 0, 0);
+  let map = {};
+  data.records.forEach(r => {
+    let d = new Date(r.date);
+    if (d >= start && d <= end) {
+      let k = r.student + '|' + r.className;
+      if (!map[k]) map[k] = { pos: 0, neg: 0, student: r.student, className: r.className };
+      if (r.score > 0) map[k].pos++; else if (r.score < 0) map[k].neg++;
+    }
+  });
+  return map;
+}
+
+function getTrendData() {
+  let current = computeStudentWindowCounts(TREND_WINDOW_DAYS, 0);
+  let previous = computeStudentWindowCounts(TREND_WINDOW_DAYS, TREND_WINDOW_DAYS);
+
+  let attention = Object.values(current)
+    .filter(s => s.neg >= TREND_NEG_THRESHOLD)
+    .sort((a, b) => b.neg - a.neg);
+
+  let improving = [];
+  Object.keys(previous).forEach(k => {
+    let prev = previous[k];
+    if (prev.neg >= TREND_NEG_THRESHOLD) {
+      let cur = current[k] || { neg: 0, pos: 0 };
+      if (cur.neg <= 1) {
+        improving.push({ student: prev.student, className: prev.className, prevNeg: prev.neg, curNeg: cur.neg });
+      }
+    }
+  });
+
+  return { attention, improving, currentMap: current };
+}
+
+function renderTrendCard(trendData) {
+  let card = document.getElementById('trendCard');
+  let body = document.getElementById('trendBody');
+  let { attention, improving } = trendData;
+
+  if (!attention.length && !improving.length) { card.classList.add('hidden'); return; }
+  card.classList.remove('hidden');
+
+  let html = '';
+  if (attention.length) {
+    html += `<div style="margin-bottom:${improving.length ? '12px' : '0'};">
+      <div style="font-size:0.7rem; font-weight:800; letter-spacing:0.05em; color:#b91c1c; margin-bottom:6px;">⚠️ DİKKAT — 3+ OLUMSUZ KAYIT</div>
+      ${attention.map(s => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border);">
+          <span style="font-size:0.85rem; font-weight:700;">${esc(s.student)} <span class="notice">(${esc(s.className)})</span></span>
+          <span class="pill" style="background:#fee2e2; color:#b91c1c;">${s.neg} olumsuz</span>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+  if (improving.length) {
+    html += `<div>
+      <div style="font-size:0.7rem; font-weight:800; letter-spacing:0.05em; color:#047857; margin-bottom:6px;">🌟 BELİRGİN GELİŞİM GÖSTERENLER</div>
+      ${improving.map(s => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:7px 0; border-bottom:1px solid var(--border);">
+          <span style="font-size:0.85rem; font-weight:700;">${esc(s.student)} <span class="notice">(${esc(s.className)})</span></span>
+          <span class="pill" style="background:#d1fae5; color:#047857;">${s.prevNeg} → ${s.curNeg}</span>
+        </div>
+      `).join('')}
+    </div>`;
+  }
+  body.innerHTML = html;
+}
+
+function norm(s) { return String(s ?? '').trim().toLocaleLowerCase('tr-TR'); }
+
+function shortDate(iso) {
+  let d = new Date(iso);
+  if (isNaN(d)) return '';
+  let datePart = d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  let timePart = d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+  return datePart + ' ' + timePart;
+}
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m])); }
+
+function escJs(s) {
+  return String(s ?? '')
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "\\'")
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function getClasses() {
+  return [...new Set(data.students.map(s => s.className).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'tr'));
+}
+
+function renderClassBadges() {
+  let cs = getClasses();
+  let current = document.getElementById('classSel').value;
+  let container = document.getElementById('classBadges');
+  container.innerHTML = `
+    <button class="badge-btn ${!current ? 'active' : ''}" onclick="selectClass('')">Tümü</button>
+    ${cs.map(c => `<button class="badge-btn ${current === c ? 'active' : ''}" onclick="selectClass('${escJs(c)}')">${esc(c)}</button>`).join('')}
+  `;
+}
+
+function selectClass(cls) {
+  document.getElementById('classSel').value = cls;
+  selectedStudentIds.clear();
+  render();
+}
+
+function renderClasses() {
+  let sel = document.getElementById('classSel');
+  let old = sel.value;
+  let cs = getClasses();
+  sel.innerHTML = '<option value="">Tüm Sınıflar</option>' + cs.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  if (cs.includes(old)) sel.value = old;
+  renderClassBadges();
+}
+
+function render() {
+  renderClasses();
+  checkBackupReminder();
+  let cls = document.getElementById('classSel').value;
+  let q = norm(document.getElementById('search').value);
+  let arr = data.students.filter(s => (!cls || s.className === cls) && (!q || norm(s.name).includes(q) || norm(s.no).includes(q)));
+
+  let trendData = getTrendData();
+  renderTrendCard(trendData);
+  let trendMap = trendData.currentMap;
+
+  document.getElementById('listTitle').innerHTML = (cls ? esc(cls) : 'Tüm Öğrenciler') + ' <span class="pill">' + arr.length + '</span>';
+  document.getElementById('viewListBtn').classList.toggle('view-toggle-active', viewMode === 'list');
+  document.getElementById('viewGridBtn').classList.toggle('view-toggle-active', viewMode === 'grid');
+  document.getElementById('bulkToolbar').classList.remove('hidden');
+
+  if (viewMode === 'grid') {
+    renderSeatingGrid(cls, q, trendMap);
+  } else {
+    renderStudentListView(arr, trendMap);
+  }
+
+  document.getElementById('selectedCount').textContent = selectedStudentIds.size + ' seçili';
+  document.getElementById('selectAll').checked = arr.length > 0 && arr.every(s => selectedStudentIds.has(s.id));
+
+  document.getElementById('records').innerHTML = data.records.slice().reverse().slice(0, 15).map(r => `
+    <tr>
+      <td style="white-space:nowrap;">${esc(shortDate(r.date))}</td>
+      <td><b>${esc(r.student)}</b></td>
+      <td>${esc(r.className)}</td>
+      <td>${esc(r.lesson)}</td>
+      <td><span class="pill" style="font-size:0.65rem; background:#e0e7ff; color:#3730a3;">${esc(r.category || 'Diğer')}</span></td>
+      <td>${r.score > 0 ? '🟢 ' : r.score < 0 ? '🔴 ' : '📝 '}${esc(r.behavior)}</td>
+      <td>${r.image ? `<img src="${r.image}" class="record-img-thumb" onclick="openImgModal('${r.image}')">` : '-'}</td>
+      <td>${esc(r.note || '')}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn-muted btn-sm" style="width:auto; padding:4px 8px;" onclick="openRecordEdit('${r.id}')">✏️</button>
+        <button class="btn-danger btn-sm" style="width:auto; padding:4px 8px;" onclick="deleteRecordConfirm('${r.id}')">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+
+  updateUndoSection();
+  updateLessonSummary();
+}
+
+function renderStudentListView(arr, trendMap) {
+  let studentsContainer = document.getElementById('students');
+  if (!arr.length) {
+    studentsContainer.innerHTML = '<div class="notice" style="text-align:center; padding:16px;">Öğrenci bulunamadı. "+ Öğrenci" veya "Excel Yükle" butonuyla ekleyebilirsiniz.</div>';
+    return;
+  }
+  studentsContainer.innerHTML = arr.map(s => {
+    let isChecked = selectedStudentIds.has(s.id);
+    let trend = trendMap[s.name + '|' + s.className];
+    let attentionBadge = (trend && trend.neg >= TREND_NEG_THRESHOLD)
+      ? `<span class="pill" style="background:#fee2e2; color:#b91c1c; margin-left:6px;">⚠️ ${trend.neg}</span>`
+      : '';
+    return `
+      <div class="student-item ${isChecked ? 'selected' : ''}">
+        <div class="student-info" onclick="openSingleBehavior('${s.id}')">
+          <input type="checkbox" class="student-checkbox" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); toggleStudentSelect('${s.id}')">
+          <div>
+            <div class="student-name">${esc(s.name)}${attentionBadge}</div>
+            <div class="student-meta">${esc(s.className || '')} ${s.no ? '• No: ' + esc(s.no) : ''}</div>
+          </div>
+        </div>
+        <div class="quick-actions">
+          <button class="btn-secondary btn-sm" style="background:#d1fae5; color:#047857; font-weight:800;" onclick="quickScore('${s.id}', 1)">+1</button>
+          <button class="btn-secondary btn-sm" style="background:#fee2e2; color:#b91c1c; font-weight:800;" onclick="quickScore('${s.id}', -1)">-1</button>
+          <button class="btn-muted btn-sm" onclick="openStudentModal('${s.id}')">✏️</button>
+          <button class="btn-danger btn-sm" onclick="deleteStudent('${s.id}')">🗑️</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function saveSeating() { localStorage.setItem('ogrenci_davranis_seating_v7', JSON.stringify(seatingPlans)); }
+
+let lastSeatingSnapshot = null;
+function snapshotSeating(cls, plan) {
+  lastSeatingSnapshot = { cls, seatIds: plan.seatIds.slice() };
+}
+function undoSeating() {
+  if (!lastSeatingSnapshot) return;
+  let plan = seatingPlans[lastSeatingSnapshot.cls];
+  if (plan) { plan.seatIds = lastSeatingSnapshot.seatIds; saveSeating(); }
+  lastSeatingSnapshot = null;
+  render();
+  toast('Oturma planı geri alındı');
+}
+
+function setViewMode(mode) {
+  viewMode = mode;
+  localStorage.setItem('ogrenci_davranis_viewmode_v7', mode);
+  gridInteractionMode = 'normal';
+  render();
+}
+
+function getSeatingForClass(cls) {
+  let studentsInClass = data.students.filter(s => s.className === cls);
+  let plan = seatingPlans[cls];
+  if (!plan) {
+    plan = { cols: 6, seatIds: studentsInClass.map(s => s.id) };
+    seatingPlans[cls] = plan;
+  } else {
+    let validIds = new Set(studentsInClass.map(s => s.id));
+    plan.seatIds = plan.seatIds.map(id => (id && validIds.has(id)) ? id : null);
+    let placed = new Set(plan.seatIds.filter(Boolean));
+    studentsInClass.filter(s => !placed.has(s.id)).forEach(s => {
+      let emptyIdx = plan.seatIds.indexOf(null);
+      if (emptyIdx !== -1) plan.seatIds[emptyIdx] = s.id;
+      else plan.seatIds.push(s.id);
+    });
+    if (!plan.cols) plan.cols = 6;
+  }
+  saveSeating();
+  return plan;
+}
+
+function setSeatingCols(val) {
+  let cls = document.getElementById('classSel').value;
+  if (!cls) return;
+  let plan = getSeatingForClass(cls);
+  plan.cols = Math.max(3, Math.min(10, Number(val) || 6));
+  saveSeating();
+  render();
+}
+
+function setGridMode(mode) {
+  gridInteractionMode = (gridInteractionMode === mode) ? 'normal' : mode;
+  render();
+}
+
+function shuffleSeating() {
+  let cls = document.getElementById('classSel').value;
+  if (!cls) return alert('Lütfen önce belirli bir sınıf seçin.');
+  let plan = getSeatingForClass(cls);
+  snapshotSeating(cls, plan);
+  let ids = plan.seatIds.slice();
+  for (let i = ids.length - 1; i > 0; i--) {
+    let j = Math.floor(Math.random() * (i + 1));
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+  }
+  plan.seatIds = ids;
+  saveSeating();
+  render();
+  toast('Oturma planı karıştırıldı');
+}
+
+function resetSeating() {
+  let cls = document.getElementById('classSel').value;
+  if (!cls) return alert('Lütfen önce belirli bir sınıf seçin.');
+  let plan = getSeatingForClass(cls);
+  snapshotSeating(cls, plan);
+  let studentsInClass = data.students.filter(s => s.className === cls).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+  let cols = plan.cols || 6;
+  seatingPlans[cls] = { cols, seatIds: studentsInClass.map(s => s.id) };
+  saveSeating();
+  render();
+  toast('Oturma planı alfabetik sıraya sıfırlandı');
+}
+
+function addEmptySeat() {
+  let cls = document.getElementById('classSel').value;
+  if (!cls) return alert('Lütfen önce belirli bir sınıf seçin.');
+  let plan = getSeatingForClass(cls);
+  snapshotSeating(cls, plan);
+  plan.seatIds.push(null);
+  saveSeating();
+  render();
+}
+
+function deleteSeatSlot(idx) {
+  let cls = document.getElementById('classSel').value;
+  let plan = getSeatingForClass(cls);
+  if (plan.seatIds[idx]) return;
+  snapshotSeating(cls, plan);
+  plan.seatIds.splice(idx, 1);
+  saveSeating();
+  render();
+}
+
+let justDraggedSeat = false;
+function tapSeat(idx) {
+  if (justDraggedSeat) { justDraggedSeat = false; return; }
+  let cls = document.getElementById('classSel').value;
+  let plan = getSeatingForClass(cls);
+  let sid = plan.seatIds[idx];
+  if (gridInteractionMode === 'edit') return;
+  if (gridInteractionMode === 'select') {
+    if (!sid) return;
+    toggleStudentSelect(sid);
+    return;
+  }
+  if (sid) openSingleBehavior(sid);
+}
+
+let seatDragCtx = null;
+function onSeatPointerDown(e) {
+  if (viewMode !== 'grid' || gridInteractionMode !== 'edit') return;
+  let cell = e.target.closest('.seat-cell');
+  if (!cell || cell.classList.contains('empty')) return;
+  let idx = Number(cell.dataset.idx);
+  if (Number.isNaN(idx)) return;
+  seatDragCtx = { idx, startX: e.clientX, startY: e.clientY, dragging: false, cell, ghost: null };
+  document.addEventListener('pointermove', onSeatPointerMove, { passive: false });
+  document.addEventListener('pointerup', onSeatPointerUp);
+  document.addEventListener('pointercancel', onSeatPointerUp);
+}
+
+function onSeatPointerMove(e) {
+  if (!seatDragCtx) return;
+  let dx = e.clientX - seatDragCtx.startX, dy = e.clientY - seatDragCtx.startY;
+  if (!seatDragCtx.dragging) {
+    if (Math.hypot(dx, dy) < 8) return;
+    seatDragCtx.dragging = true;
+    startSeatDragVisual(seatDragCtx, e);
+  }
+  e.preventDefault();
+  moveSeatDragVisual(seatDragCtx, e);
+}
+
+function onSeatPointerUp(e) {
+  if (!seatDragCtx) return;
+  document.removeEventListener('pointermove', onSeatPointerMove);
+  document.removeEventListener('pointerup', onSeatPointerUp);
+  document.removeEventListener('pointercancel', onSeatPointerUp);
+
+  if (seatDragCtx.dragging) {
+    justDraggedSeat = true;
+    let targetEl = document.elementFromPoint(e.clientX, e.clientY);
+    let targetCell = targetEl ? targetEl.closest('.seat-cell') : null;
+    endSeatDragVisual(seatDragCtx);
+    if (targetCell) {
+      let targetIdx = Number(targetCell.dataset.idx);
+      if (!Number.isNaN(targetIdx) && targetIdx !== seatDragCtx.idx) {
+        swapSeats(seatDragCtx.idx, targetIdx);
+      }
+    }
+  }
+  seatDragCtx = null;
+}
+
+function startSeatDragVisual(ctx, e) {
+  ctx.cell.classList.add('seat-dragging-source');
+  let rect = ctx.cell.getBoundingClientRect();
+  let ghost = ctx.cell.cloneNode(true);
+  ghost.classList.add('seat-ghost');
+  ghost.style.width = rect.width + 'px';
+  ghost.style.height = rect.height + 'px';
+  ghost.style.left = rect.left + 'px';
+  ghost.style.top = rect.top + 'px';
+  document.body.appendChild(ghost);
+  ctx.ghost = ghost;
+  ctx.offsetX = e.clientX - rect.left;
+  ctx.offsetY = e.clientY - rect.top;
+}
+
+function moveSeatDragVisual(ctx, e) {
+  if (!ctx.ghost) return;
+  ctx.ghost.style.left = (e.clientX - ctx.offsetX) + 'px';
+  ctx.ghost.style.top = (e.clientY - ctx.offsetY) + 'px';
+
+  document.querySelectorAll('.seat-cell.seat-drag-over').forEach(el => el.classList.remove('seat-drag-over'));
+  let el = document.elementFromPoint(e.clientX, e.clientY);
+  let hoverCell = el ? el.closest('.seat-cell') : null;
+  if (hoverCell && hoverCell !== ctx.cell) hoverCell.classList.add('seat-drag-over');
+}
+
+function endSeatDragVisual(ctx) {
+  if (ctx.ghost) ctx.ghost.remove();
+  ctx.cell.classList.remove('seat-dragging-source');
+  document.querySelectorAll('.seat-cell.seat-drag-over').forEach(el => el.classList.remove('seat-drag-over'));
+}
+
+function swapSeats(i, j) {
+  let cls = document.getElementById('classSel').value;
+  let plan = getSeatingForClass(cls);
+  snapshotSeating(cls, plan);
+  let tmp = plan.seatIds[i];
+  plan.seatIds[i] = plan.seatIds[j];
+  plan.seatIds[j] = tmp;
+  saveSeating();
+  render();
+}
+
+function renderSeatingGrid(cls, q, trendMap) {
+  let container = document.getElementById('students');
+  if (!cls) {
+    container.innerHTML = '<div class="notice" style="text-align:center; padding:16px;">Oturma planı görünümü için lütfen üstten belirli bir sınıf seçin.</div>';
+    return;
+  }
+  let plan = getSeatingForClass(cls);
+  let canUndo = lastSeatingSnapshot && lastSeatingSnapshot.cls === cls;
+
+  let toolbar = `
+    <div style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:12px;">
+      <label style="margin:0; display:flex; align-items:center; gap:6px; font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:none;">
+        Sütun:
+        <input type="number" min="3" max="10" value="${plan.cols}" style="width:56px; margin:0; padding:6px;" onchange="setSeatingCols(this.value)">
+      </label>
+      <button class="btn-sm ${gridInteractionMode === 'select' ? 'btn-primary' : 'btn-secondary'}" style="width:auto;" onclick="setGridMode('select')">${gridInteractionMode === 'select' ? '✓ Seçim Açık' : '☑️ Seç'}</button>
+      <button class="btn-sm ${gridInteractionMode === 'edit' ? 'btn-primary' : 'btn-secondary'}" style="width:auto;" onclick="setGridMode('edit')">${gridInteractionMode === 'edit' ? '✓ Düzenleme Açık' : '✏️ Yerleri Düzenle'}</button>
+      <button class="btn-muted btn-sm" style="width:auto;" onclick="shuffleSeating()">🔀 Karıştır</button>
+      <button class="btn-muted btn-sm" style="width:auto;" onclick="resetSeating()">↺ Alfabetik Sıfırla</button>
+      <button class="btn-muted btn-sm" style="width:auto;" onclick="addEmptySeat()">+ Boş Sıra</button>
+      <button class="btn-muted btn-sm" style="width:auto;" ${canUndo ? '' : 'disabled'} onclick="undoSeating()">↶ Geri Al</button>
+    </div>
+  `;
+
+  let cellsHtml = plan.seatIds.map((sid, idx) => {
+    let student = sid ? data.students.find(s => s.id === sid) : null;
+    let isEmpty = !student;
+    let matchesSearch = !q || (student && (norm(student.name).includes(q) || norm(student.no).includes(q)));
+    let trend = student ? trendMap[student.name + '|' + student.className] : null;
+    let isAttention = trend && trend.neg >= TREND_NEG_THRESHOLD;
+    let isSelected = student && selectedStudentIds.has(student.id);
+    let initials = student ? student.name.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase() : '';
+    let titleAttr = student ? esc(student.name) + (student.no ? ' • No: ' + esc(student.no) : '') : 'Boş sıra';
+    
+    let avatarContent = student && student.photo
+      ? `<img src="${student.photo}">`
+      : `<span class="seat-avatar">${esc(initials)}</span>`;
+
+    return `
+      <button class="seat-cell ${isEmpty ? 'empty' : ''} ${isSelected ? 'seat-selected' : ''}"
+        data-idx="${idx}"
+        style="${(q && !matchesSearch) ? 'opacity:0.3;' : ''}"
+        onclick="tapSeat(${idx})" title="${titleAttr}">
+        ${isAttention ? `<span class="seat-alert">${trend.neg}</span>` : ''}
+        ${isEmpty && gridInteractionMode === 'edit' ? `<span class="seat-delete" onclick="event.stopPropagation(); deleteSeatSlot(${idx})">×</span>` : ''}
+        ${student
+          ? `<div class="seat-avatar">${student.photo ? `<img src="${student.photo}" style="width:100%; height:100%; object-fit:cover;">` : esc(initials)}</div><span class="seat-name">${esc(student.name)}</span>`
+          : `<span class="seat-avatar seat-avatar-empty">+</span><span class="seat-name">Boş</span>`}
+      </button>
+    `;
+  }).join('');
+
+  container.innerHTML = toolbar + `<div class="seating-grid" style="grid-template-columns: repeat(${plan.cols}, 1fr);">${cellsHtml}</div>`;
+}
+
+function quickScore(studentId, score) {
+  let st = data.students.find(s => s.id === studentId);
+  if (!st) return;
+  let bName = score > 0 ? 'Olumlu davranış' : 'Olumsuz davranış';
+  let now = new Date();
+  data.records.push({
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+    student: st.name,
+    className: st.className,
+    lesson: document.getElementById('lessonSel').value,
+    category: 'Diğer',
+    behavior: bName,
+    score: score,
+    note: 'Hızlı Giriş',
+    image: null,
+    date: now.toISOString(),
+    dateText: now.toLocaleString('tr-TR')
+  });
+  toast(st.name + ' (' + (score > 0 ? '+1' : '-1') + ')');
+  triggerFeedback();
+  save();
+}
+
+function openStudentModal(id = null) {
+  document.getElementById('editStudentId').value = id || '';
+  clearStudentPhoto();
+  if (id) {
+    let s = data.students.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('editStudentName').value = s.name;
+    document.getElementById('editStudentClass').value = s.className;
+    document.getElementById('editStudentNo').value = s.no || '';
+    if (s.photo) {
+      currentStudentPhotoBase64 = s.photo;
+      document.getElementById('studentPhotoPreview').src = s.photo;
+      document.getElementById('studentPhotoPreviewContainer').classList.remove('hidden');
+      document.getElementById('removeStudentPhotoBtn').classList.remove('hidden');
+      document.getElementById('studentPhotoStatus').textContent = 'Fotoğraf yüklü ✓';
+    }
+    document.getElementById('studentModalTitle').textContent = 'Öğrenci Düzenle';
+  } else {
+    document.getElementById('editStudentName').value = '';
+    document.getElementById('editStudentClass').value = document.getElementById('classSel').value || '';
+    document.getElementById('editStudentNo').value = '';
+    document.getElementById('studentModalTitle').textContent = 'Yeni Öğrenci Ekle';
+  }
+  document.getElementById('studentModal').classList.add('open');
+  document.getElementById('studentModalOverlay').classList.add('open');
+}
+
+function closeStudentModal() {
+  document.getElementById('studentModal').classList.remove('open');
+  document.getElementById('studentModalOverlay').classList.remove('open');
+  clearStudentPhoto();
+}
+
+function saveStudent() {
+  let id = document.getElementById('editStudentId').value;
+  let name = document.getElementById('editStudentName').value.trim();
+  let className = document.getElementById('editStudentClass').value.trim();
+  let no = document.getElementById('editStudentNo').value.trim();
+  let photo = currentStudentPhotoBase64;
+
+  if (!name || !className) return alert('Lütfen öğrenci adı ve sınıfını giriniz.');
+
+  if (id) {
+    let s = data.students.find(x => x.id === id);
+    if (s) { s.name = name; s.className = className; s.no = no; if (photo !== null) s.photo = photo; }
+  } else {
+    data.students.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+      name, className, no, photo
+    });
+  }
+  save();
+  closeStudentModal();
+  toast('Öğrenci kaydedildi ✓');
+}
+
+function deleteStudent(id) {
+  let s = data.students.find(x => x.id === id);
+  if (s && confirm(s.name + ' silinsin mi?')) {
+    data.students = data.students.filter(x => x.id !== id);
+    selectedStudentIds.delete(id);
+    save();
+    toast('Öğrenci silindi');
+  }
+}
+
+function refreshRecordViews() {
+  render();
+  if (!document.getElementById('reportCard').classList.contains('hidden')) buildReport();
+}
+
+function openRecordEdit(id) {
+  let r = data.records.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('editRecordId').value = r.id;
+  document.getElementById('editRecordDate').value = shortDate(r.date) + ' • ' + r.student + ' (' + r.className + ')';
+  document.getElementById('editRecordCategory').value = r.category || 'Diğer';
+  document.getElementById('editRecordBehavior').value = r.behavior;
+  document.getElementById('editRecordScore').value = String(r.score > 0 ? 1 : r.score < 0 ? -1 : 0);
+  document.getElementById('editRecordNote').value = r.note || '';
+  document.getElementById('recordEditModal').classList.add('open');
+  document.getElementById('recordEditOverlay').classList.add('open');
+}
+
+function closeRecordEdit() {
+  document.getElementById('recordEditModal').classList.remove('open');
+  document.getElementById('recordEditOverlay').classList.remove('open');
+}
+
+function saveRecordEdit() {
+  let id = document.getElementById('editRecordId').value;
+  let r = data.records.find(x => x.id === id);
+  if (!r) return;
+  r.category = document.getElementById('editRecordCategory').value;
+  r.behavior = document.getElementById('editRecordBehavior').value.trim() || r.behavior;
+  r.score = Number(document.getElementById('editRecordScore').value);
+  r.note = document.getElementById('editRecordNote').value.trim();
+  save();
+  closeRecordEdit();
+  refreshRecordViews();
+  toast('Kayıt güncellendi ✓');
+}
+
+function deleteRecordFromModal() {
+  let id = document.getElementById('editRecordId').value;
+  if (deleteRecordConfirm(id)) closeRecordEdit();
+}
+
+function deleteRecordConfirm(id) {
+  let r = data.records.find(x => x.id === id);
+  if (!r) return false;
+  if (!confirm(r.student + ' için ' + shortDate(r.date) + ' tarihli kayıt silinsin mi?')) return false;
+  data.records = data.records.filter(x => x.id !== id);
+  save();
+  refreshRecordViews();
+  toast('Kayıt silindi');
+  return true;
+}
+
+let currentGuidanceData = null;
+function openGuidanceForm(studentName, className) {
+  let stRecords = data.records.filter(r => r.student === studentName && r.className === className);
+  let negRecords = stRecords.filter(r => r.score < 0);
+  let stObj = data.students.find(s => s.name === studentName && s.className === className);
+  let noStr = stObj && stObj.no ? 'Öğrenci No: ' + stObj.no : '';
+
+  let schoolName = getSchoolName();
+  let teacherName = getTeacherName();
+
+  let html = `
+    ${schoolName ? `<div style="text-align:center; font-weight:800; font-size:1rem; margin-bottom:10px;">${esc(schoolName)}</div>` : ''}
+    <div style="text-align:center; font-weight:700; font-size:0.85rem; margin-bottom:14px; text-decoration:underline;">REHBERLİK SERVİSİ / DİSİPLİN SEVK BİLDİRİM FORMU</div>
+    <p><b>Tarih:</b> ${new Date().toLocaleDateString('tr-TR')}</p>
+    <p><b>Öğrenci Adı Soyadı:</b> ${esc(studentName)} (${esc(className)}) ${noStr}</p>
+    <p><b>Gözlemlenen Olumsuz Davranış Sayısı:</b> ${negRecords.length} adet</p>
+    <p><b>Son Dönem Kayıt Özeti:</b></p>
+    <ul>
+      ${stRecords.slice(-5).map(r => `<li><b>${shortDate(r.date)}</b> [${esc(r.category || 'Diğer')}] - ${esc(r.behavior)} ${r.note ? '(' + esc(r.note) + ')' : ''}</li>`).join('')}
+    </ul>
+    <p style="margin-top:14px;">Yukarıda bilgileri yer alan öğrencinin sınıf içi uyum, motivasyon ve akademik takibi açısından rehberlik servisi tarafından incelenmesi / görüşme yapılması arz olunur.</p>
+    <div style="margin-top:30px; display:flex; justify-content:space-between;">
+      <div><b>Ders Öğretmeni</b><br>${teacherName ? esc(teacherName) : '................................'}</div>
+      <div><b>Rehberlik Servis / İdare Onayı</b><br><br>................................</div>
+    </div>
+  `;
+  currentGuidanceData = { studentName, className, html };
+  document.getElementById('guidanceContentContainer').innerHTML = html;
+  document.getElementById('guidanceModal').classList.add('open');
+  document.getElementById('guidanceModalOverlay').classList.add('open');
+}
+
+function closeGuidanceModal() {
+  document.getElementById('guidanceModal').classList.remove('open');
+  document.getElementById('guidanceModalOverlay').classList.remove('open');
+}
+
+function printGuidanceForm() {
+  if (!currentGuidanceData) return;
+  let w = window.open('', '_blank');
+  if (!w) return;
+  w.document.write(`
+    <html>
+    <head><title>Rehberlik Sevk Formu - ${esc(currentGuidanceData.studentName)}</title>
+    <style>
+      body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #000; line-height: 1.6; }
+      .form-box { border: 2px solid #000; padding: 30px; border-radius: 8px; max-width: 700px; margin: 0 auto; }
+      @media print { body { padding: 0; } .form-box { border: none; } }
+    </style>
+    </head>
+    <body>
+      <div class="form-box">
+        ${currentGuidanceData.html}
+      </div>
+    </body>
+    </html>
+  `);
+  w.document.close();
+  setTimeout(() => w.print(), 250);
+}
+
+let activeParentModalKey = null;
+function generateParentMessage(key) {
+  let x = lastReportGrouped[key];
+  if (!x) return;
+  activeParentModalKey = key;
+
+  let posCounts = {}, negCounts = {};
+  x.rows.forEach(r => {
+    if (r.score > 0) posCounts[r.behavior] = (posCounts[r.behavior] || 0) + 1;
+    else if (r.score < 0) negCounts[r.behavior] = (negCounts[r.behavior] || 0) + 1;
+  });
+  let topPos = Object.entries(posCounts).sort((a, b) => b[1] - a[1])[0];
+  let topNeg = Object.entries(negCounts).sort((a, b) => b[1] - a[1])[0];
+
+  let msg = `Sayın Velimiz,\n\n${x.student} öğrencimizin bu dönemki sınıf içi gözlem özetini paylaşmak isteriz.\n\n`;
+  msg += `✅ Olumlu davranış kaydı: ${x.pos}\n`;
+  msg += `⚠️ Gelişim alanı olarak not edilen davranış kaydı: ${x.neg}\n`;
+  if (topPos) msg += `\nBu dönem öne çıkan olumlu davranış: "${topPos[0]}"\n`;
+  if (topNeg) msg += `Üzerinde birlikte durmamızda fayda gördüğümüz davranış: "${topNeg[0]}"\n`;
+  msg += `\n${x.student}'i desteklemeye evde de devam edebilirseniz seviniriz. Sorularınız için bize ulaşabilirsiniz.\n\nSaygılarımızla.`;
+
+  document.getElementById('parentMsgText').value = msg;
+  renderParentLogs(key);
+  document.getElementById('parentMsgModal').classList.add('open');
+  document.getElementById('parentMsgOverlay').classList.add('open');
+}
+
+function renderParentLogs(key) {
+  let container = document.getElementById('parentLogContainer');
+  let logs = (data.parentLogs && data.parentLogs[key]) || [];
+  if (!logs.length) {
+    container.innerHTML = '<div class="notice">Henüz iletişim kaydı bulunmuyor.</div>';
+    return;
+  }
+  container.innerHTML = logs.slice().reverse().map(l => `
+    <div style="padding:4px 0; border-bottom:1px solid var(--border);">
+      <b>${esc(shortDate(l.date))}</b> — ${esc(l.note || 'Veliye bilgi mesajı iletildi.')}
+    </div>
+  `).join('');
+}
+
+function closeParentMsg() {
+  document.getElementById('parentMsgModal').classList.remove('open');
+  document.getElementById('parentMsgOverlay').classList.remove('open');
+  activeParentModalKey = null;
+}
+
+function copyParentMsgAndLog() {
+  let ta = document.getElementById('parentMsgText');
+  ta.select();
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(ta.value).then(() => toast('Kopyalandı ✓')).catch(() => { document.execCommand('copy'); toast('Kopyalandı ✓'); });
+  } else {
+    document.execCommand('copy');
+    toast('Kopyalandı ✓');
+  }
+
+  if (activeParentModalKey) {
+    if (!data.parentLogs) data.parentLogs = {};
+    if (!data.parentLogs[activeParentModalKey]) data.parentLogs[activeParentModalKey] = [];
+    data.parentLogs[activeParentModalKey].push({
+      date: new Date().toISOString(),
+      note: 'Veli bilgilendirme mesajı kopyalandı ve iletildi.'
+    });
+    save();
+    renderParentLogs(activeParentModalKey);
+  }
+}
+
+function openBehaviorManager() {
+  renderBehaviorList();
+  document.getElementById('behaviorModal').classList.add('open');
+  document.getElementById('behaviorModalOverlay').classList.add('open');
+}
+
+function closeBehaviorModal() {
+  document.getElementById('behaviorModal').classList.remove('open');
+  document.getElementById('behaviorModalOverlay').classList.remove('open');
+}
+
+function renderBehaviorList() {
+  let el = document.getElementById('behaviorList');
+  el.innerHTML = data.customBehaviors.map((b, idx) => `
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);">
+      <span style="font-size:0.85rem; font-weight:600;">${b[1] > 0 ? '🟢' : '🔴'} ${esc(b[0])}</span>
+      <button class="btn-danger btn-sm" onclick="removeBehavior(${idx})">Sil</button>
+    </div>
+  `).join('');
+}
+
+function addNewBehavior() {
+  let text = document.getElementById('newBehaviorText').value.trim();
+  let score = Number(document.getElementById('newBehaviorScore').value);
+  if (!text) return;
+  data.customBehaviors.push([text, score]);
+  document.getElementById('newBehaviorText').value = '';
+  save();
+  renderBehaviorList();
+  toast('Davranış eklendi');
+}
+
+function removeBehavior(idx) {
+  data.customBehaviors.splice(idx, 1);
+  save();
+  renderBehaviorList();
+}
+
+function exportBackupJSON() {
+  let blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Davranis_Takip_v7_Yedek_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  localStorage.setItem('ogrenci_davranis_last_backup_v7', String(Date.now()));
+  checkBackupReminder();
+  toast('Yedek indirildi ✓');
+}
+
+function checkBackupReminder() {
+  let banner = document.getElementById('backupBanner');
+  if (!data.students.length && !data.records.length) { banner.classList.add('hidden'); return; }
+  let last = localStorage.getItem('ogrenci_davranis_last_backup_v7');
+  let days = last ? Math.floor((Date.now() - Number(last)) / 86400000) : null;
+  if (days === null || days >= 7) {
+    banner.classList.remove('hidden');
+    document.getElementById('backupBannerText').textContent = (days === null)
+      ? '📌 Henüz hiç yedek almadın. Veri kaybını önlemek için şimdi yedekle.'
+      : `📌 Son yedeklemeden bu yana ${days} gün geçti. Şimdi yedekle.`;
+  } else {
+    banner.classList.add('hidden');
+  }
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('themeToggleBtn').textContent = theme === 'dark' ? '☀️' : '🌙';
+  localStorage.setItem('ogrenci_davranis_theme_v7', theme);
+}
+function toggleTheme() {
+  let current = localStorage.getItem('ogrenci_davranis_theme_v7') || 'light';
+  applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+function initTheme() {
+  applyTheme(localStorage.getItem('ogrenci_davranis_theme_v7') || 'light');
+}
+
+const AUTO_LOCK_MINUTES = 5;
+let autoLockTimer = null;
+
+function checkLockOnLoad() {
+  let pin = localStorage.getItem('ogrenci_davranis_pin_v7');
+  if (pin) {
+    document.getElementById('lockScreen').classList.remove('hidden');
+    setTimeout(() => document.getElementById('lockPinInput').focus(), 50);
+  }
+}
+
+function lockNow() {
+  let pin = localStorage.getItem('ogrenci_davranis_pin_v7');
+  if (!pin) return;
+  document.getElementById('lockScreen').classList.remove('hidden');
+}
+
+function resetAutoLockTimer() {
+  let pin = localStorage.getItem('ogrenci_davranis_pin_v7');
+  if (!pin) return;
+  if (autoLockTimer) clearTimeout(autoLockTimer);
+  autoLockTimer = setTimeout(lockNow, AUTO_LOCK_MINUTES * 60 * 1000);
+}
+
+function attemptUnlock() {
+  let pin = localStorage.getItem('ogrenci_davranis_pin_v7');
+  let val = document.getElementById('lockPinInput').value;
+  if (val === pin) {
+    document.getElementById('lockScreen').classList.add('hidden');
+    document.getElementById('lockPinInput').value = '';
+    document.getElementById('lockError').textContent = '';
+    resetAutoLockTimer();
+  } else {
+    document.getElementById('lockError').textContent = 'Yanlış PIN, tekrar deneyin.';
+    document.getElementById('lockPinInput').value = '';
+    document.getElementById('lockPinInput').focus();
+  }
+}
+
+function setupPinLock() {
+  let current = localStorage.getItem('ogrenci_davranis_pin_v7');
+  if (current) {
+    let entered = prompt('Kilidi kaldırmak için mevcut PIN\'i girin:');
+    if (entered === null) return;
+    if (entered !== current) { alert('Yanlış PIN.'); return; }
+    localStorage.removeItem('ogrenci_davranis_pin_v7');
+    toast('PIN kilidi kaldırıldı');
+    updatePinButtonLabel();
+    return;
+  }
+  let p1 = prompt('Yeni PIN belirleyin (4-6 haneli rakam):');
+  if (!p1) return;
+  if (!/^\d{4,6}$/.test(p1)) { alert('PIN 4-6 haneli rakamlardan oluşmalıdır.'); return; }
+  let p2 = prompt('PIN\'i tekrar girin:');
+  if (p1 !== p2) { alert('Girdiğiniz PIN\'ler uyuşmuyor.'); return; }
+  localStorage.setItem('ogrenci_davranis_pin_v7', p1);
+  toast('PIN kilidi kuruldu ✓');
+  updatePinButtonLabel();
+}
+
+function updatePinButtonLabel() {
+  let btn = document.getElementById('pinBtn');
+  let has = !!localStorage.getItem('ogrenci_davranis_pin_v7');
+  btn.textContent = has ? '🔓 PIN Kilidini Kaldır' : '🔒 PIN Kilidi Kur';
+}
+
+function saveInstitutionInfo() {
+  localStorage.setItem('ogrenci_davranis_schoolname_v7', document.getElementById('schoolNameInput').value.trim());
+  localStorage.setItem('ogrenci_davranis_teachername_v7', document.getElementById('teacherNameInput').value.trim());
+  toast('Kaydedildi ✓');
+}
+
+function loadInstitutionInfo() {
+  document.getElementById('schoolNameInput').value = localStorage.getItem('ogrenci_davranis_schoolname_v7') || '';
+  document.getElementById('teacherNameInput').value = localStorage.getItem('ogrenci_davranis_teachername_v7') || '';
+}
+
+function getSchoolName() { return localStorage.getItem('ogrenci_davranis_schoolname_v7') || ''; }
+function getTeacherName() { return localStorage.getItem('ogrenci_davranis_teachername_v7') || ''; }
+
+document.getElementById('jsonInput').onchange = async e => {
+  let file = e.target.files[0];
+  if (!file) return;
+  try {
+    let importedData = JSON.parse(await file.text());
+    if (importedData.students && importedData.records) {
+      data = importedData;
+      if (!data.customBehaviors) data.customBehaviors = defaultBehaviors;
+      if (!data.parentLogs) data.parentLogs = {};
+      save();
+      toast('Yedek yüklendi ✓');
+    } else { alert('Geçersiz yedek dosyası.'); }
+  } catch (err) { alert('Hata: ' + err); }
+  e.target.value = '';
+};
+
+function toggleStudentSelect(id) {
+  if (selectedStudentIds.has(id)) selectedStudentIds.delete(id);
+  else selectedStudentIds.add(id);
+  render();
+}
+
+function toggleSelectAll(checked) {
+  let cls = document.getElementById('classSel').value;
+  let q = norm(document.getElementById('search').value);
+  let arr = data.students.filter(s => (!cls || s.className === cls) && (!q || norm(s.name).includes(q) || norm(s.no).includes(q)));
+  if (checked) arr.forEach(s => selectedStudentIds.add(s.id));
+  else arr.forEach(s => selectedStudentIds.delete(s.id));
+  render();
+}
+
+function openSingleBehavior(studentId) {
+  activeTargetStudent = data.students.find(s => s.id === studentId);
+  if (!activeTargetStudent) return;
+  isMultiSelectMode = false;
+  document.getElementById('drawerTitle').textContent = activeTargetStudent.name;
+  clearDrawerImage();
+  renderDrawerBehaviors();
+  showDrawer();
+}
+
+function openMultiBehavior() {
+  if (selectedStudentIds.size === 0) return alert('Önce öğrencileri seçiniz.');
+  isMultiSelectMode = true;
+  document.getElementById('drawerTitle').textContent = selectedStudentIds.size + ' Öğrenci Seçili';
+  clearDrawerImage();
+  renderDrawerBehaviors();
+  showDrawer();
+}
+
+function showDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+}
+
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.getElementById('note').value = '';
+  clearDrawerImage();
+  activeTargetStudent = null;
+}
+
+function renderDrawerBehaviors() {
+  let counts = {};
+  data.records.forEach(r => counts[r.behavior] = (counts[r.behavior] || 0) + 1);
+  let sortedBehaviors = Object.keys(counts).sort((a,b) => counts[b] - counts[a]).slice(0, 4);
+
+  let freqContainer = document.getElementById('frequentBehaviors');
+  let freqSection = document.getElementById('frequentSection');
+
+  if (sortedBehaviors.length > 0) {
+    freqSection.classList.remove('hidden');
+    freqContainer.innerHTML = sortedBehaviors.map(bName => {
+      let bObj = data.customBehaviors.find(b => b[0] === bName) || [bName, 1];
+      return `
+        <button class="btn-behavior ${bObj[1] < 0 ? 'neg' : 'pos'}" onclick="executeAddRecord('${escJs(bObj[0])}', ${bObj[1]})">
+          ${bObj[1] < 0 ? '🔴' : '🟢'} ${esc(bObj[0])}
+        </button>
+      `;
+    }).join('');
+  } else { freqSection.classList.add('hidden'); }
+
+  document.getElementById('allBehaviors').innerHTML = data.customBehaviors.map(b => `
+    <button class="btn-behavior ${b[1] < 0 ? 'neg' : 'pos'}" onclick="executeAddRecord('${escJs(b[0])}', ${b[1]})">
+      ${b[1] < 0 ? '🔴' : '🟢'} ${esc(b[0])}
+    </button>
+  `).join('');
+}
+
+function executeAddRecord(behaviorName, score) {
+  let now = new Date();
+  let noteVal = document.getElementById('note').value.trim();
+  let categoryVal = document.getElementById('behaviorCategory').value;
+  let imgVal = currentDrawerImageBase64;
+  let currentLesson = document.getElementById('lessonSel').value;
+  let currentClassFilter = document.getElementById('classSel').value;
+
+  if (isMultiSelectMode) {
+    let targetStudents = data.students.filter(s => selectedStudentIds.has(s.id));
+    targetStudents.forEach(s => {
+      data.records.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        student: s.name, className: s.className, lesson: currentLesson,
+        category: categoryVal, behavior: behaviorName, score: score, note: noteVal, image: imgVal,
+        date: now.toISOString(), dateText: now.toLocaleString('tr-TR')
+      });
+    });
+    toast(targetStudents.length + ' öğrenciye işlendi ✓');
+    selectedStudentIds.clear();
+  } else if (activeTargetStudent) {
+    data.records.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+      student: activeTargetStudent.name, className: currentClassFilter || activeTargetStudent.className,
+      lesson: currentLesson, category: categoryVal, behavior: behaviorName, score: score, note: noteVal, image: imgVal,
+      date: now.toISOString(), dateText: now.toLocaleString('tr-TR')
+    });
+    toast(activeTargetStudent.name + ' kaydedildi ✓');
+  }
+
+  triggerFeedback();
+  closeDrawer();
+  save();
+}
+
+function saveNoteOnly() {
+  let noteVal = document.getElementById('note').value.trim();
+  let categoryVal = document.getElementById('behaviorCategory').value;
+  let imgVal = currentDrawerImageBase64;
+  if (!noteVal && !imgVal) return alert('Kaydedilecek bir not veya görsel eklemediniz.');
+  let now = new Date();
+  let currentLesson = document.getElementById('lessonSel').value;
+  let currentClassFilter = document.getElementById('classSel').value;
+
+  if (isMultiSelectMode) {
+    let targetStudents = data.students.filter(s => selectedStudentIds.has(s.id));
+    if (!targetStudents.length) return alert('Önce öğrencileri seçiniz.');
+    targetStudents.forEach(s => {
+      data.records.push({
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        student: s.name, className: s.className, lesson: currentLesson,
+        category: categoryVal, behavior: 'Not / Kanıt', score: 0, note: noteVal, image: imgVal,
+        date: now.toISOString(), dateText: now.toLocaleString('tr-TR')
+      });
+    });
+    toast(targetStudents.length + ' öğrenciye eklendi ✓');
+    selectedStudentIds.clear();
+  } else if (activeTargetStudent) {
+    data.records.push({
+      id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+      student: activeTargetStudent.name, className: currentClassFilter || activeTargetStudent.className,
+      lesson: currentLesson, category: categoryVal, behavior: 'Not / Kanıt', score: 0, note: noteVal, image: imgVal,
+      date: now.toISOString(), dateText: now.toLocaleString('tr-TR')
+    });
+    toast(activeTargetStudent.name + ' için kaydedildi ✓');
+  } else {
+    return;
+  }
+
+  triggerFeedback();
+  closeDrawer();
+  save();
+}
+
+function updateUndoSection() {
+  let sec = document.getElementById('undoSection');
+  if (data.records.length > 0) {
+    let last = data.records[data.records.length - 1];
+    document.getElementById('undoText').textContent = last.student + ' - ' + last.behavior;
+    sec.classList.remove('hidden');
+  } else { sec.classList.add('hidden'); }
+}
+
+function undoLastRecord() {
+  if (!data.records.length) return;
+  let removed = data.records.pop();
+  save();
+  toast('Silindi: ' + removed.student);
+}
+
+function updateLessonSummary() {
+  let today = new Date().toISOString().slice(0, 10);
+  let cls = document.getElementById('classSel').value;
+  let rows = data.records.filter(r => r.date.slice(0, 10) === today && (!cls || r.className === cls));
+
+  document.getElementById('summaryPos').textContent = rows.filter(r => r.score > 0).length;
+  document.getElementById('summaryNeg').textContent = rows.filter(r => r.score < 0).length;
+  document.getElementById('summaryTotal').textContent = rows.length;
+
+  let counts = {};
+  rows.forEach(r => counts[r.behavior] = (counts[r.behavior] || 0) + 1);
+  let topB = Object.keys(counts).sort((a,b) => counts[b] - counts[a])[0];
+
+  let summaryEl = document.getElementById('summaryTopBehavior');
+  if (topB) { summaryEl.innerHTML = `Lider Davranış: <b>${esc(topB)}</b> (${counts[topB]} kez)`; }
+  else { summaryEl.textContent = 'Bugün henüz bu sınıfta kayıt yapılmadı.'; }
+}
+
+function dayName(d) { return ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'][d.getDay()]; }
+function timeToMin(v) {
+  let m = String(v ?? '').match(/(\d{1,2})[:.](\d{2})/);
+  return m ? Number(m[1]) * 60 + Number(m[2]) : -1;
+}
+
+function updateLiveTimer() {
+  let now = new Date();
+  let day = dayName(now);
+  let currentMin = now.getHours() * 60 + now.getMinutes();
+  let active = schedule.find(x => norm(x.day) === norm(day) && currentMin >= timeToMin(x.start) && currentMin < timeToMin(x.end));
+
+  let timerEl = document.getElementById('liveTimer');
+  let infoEl = document.getElementById('liveInfo');
+
+  if (!schedule.length) {
+    infoEl.textContent = 'Ders programı tanımlanmadı';
+    timerEl.textContent = '--:--';
+    return;
+  }
+
+  if (active) {
+    infoEl.textContent = active.className + ' — ' + active.lesson;
+    timerEl.textContent = (timeToMin(active.end) - currentMin) + ' dk kaldı';
+  } else {
+    infoEl.textContent = 'Şu an aktif bir ders bulunmuyor';
+    timerEl.textContent = 'Ders Yok';
+  }
+}
+
+function setDateFilter(type) {
+  let now = new Date();
+  let from = new Date();
+  if (type === 'week') from.setDate(now.getDate() - 7);
+  else if (type === 'month') from.setMonth(now.getMonth() - 1);
+  else if (type === 'all') {
+    document.getElementById('reportFrom').value = '';
+    document.getElementById('reportTo').value = '';
+    buildReport(); return;
+  }
+  document.getElementById('reportFrom').value = from.toISOString().slice(0,10);
+  document.getElementById('reportTo').value = now.toISOString().slice(0,10);
+  buildReport();
+}
+
+function showReports() {
+  let cls = document.getElementById('classSel').value;
+  let rc = document.getElementById('reportClass');
+  rc.innerHTML = '<option value="">Tüm Sınıflar</option>' + getClasses().map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  rc.value = cls;
+  updateReportStudents();
+  buildReport();
+  document.getElementById('reportCard').classList.remove('hidden');
+  document.getElementById('reportCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+function updateReportStudents() {
+  let cls = document.getElementById('reportClass').value;
+  let arr = data.students.filter(s => !cls || s.className === cls).sort((a, b) => a.name.localeCompare(b.name, 'tr'));
+  document.getElementById('reportStudent').innerHTML = '<option value="">Tüm Öğrenciler (Sınıf Karnesi)</option>' + arr.map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');
+}
+
+function buildReport() {
+  let cls = document.getElementById('reportClass').value;
+  let sid = document.getElementById('reportStudent').value;
+  let from = document.getElementById('reportFrom').value;
+  let to = document.getElementById('reportTo').value;
+
+  let rows = data.records.filter(r => 
+    (!cls || r.className === cls) &&
+    (!sid || data.students.find(s => s.id === sid)?.name === r.student) &&
+    (!from || r.date.slice(0, 10) >= from) &&
+    (!to || r.date.slice(0, 10) <= to)
+  );
+
+  let classStats = {};
+  rows.forEach(r => {
+    if (!classStats[r.className]) classStats[r.className] = { pos: 0, neg: 0 };
+    if (r.score > 0) classStats[r.className].pos++; else if (r.score < 0) classStats[r.className].neg++;
+  });
+
+  let grouped = {};
+  rows.forEach(r => {
+    let k = r.student + '|' + r.className;
+    if (!grouped[k]) grouped[k] = { key: k, student: r.student, cls: r.className, pos: 0, neg: 0, netScore: 0, rows: [] };
+    if (r.score > 0) grouped[k].pos++; else if (r.score < 0) grouped[k].neg++;
+    grouped[k].netScore += r.score;
+    grouped[k].rows.push(r);
+  });
+  lastReportGrouped = grouped;
+
+  let comparisonHtml = '';
+  if (!cls && Object.keys(classStats).length > 1) {
+    comparisonHtml = `
+      <div style="margin-bottom: 16px; border: 1px solid var(--border); border-radius: 12px; padding: 14px; background: var(--card-bg);">
+        <h4 style="margin: 0 0 10px 0; font-size: 0.9rem; font-weight: 800;">📊 Sınıflar Arası Karşılaştırma</h4>
+        ${Object.entries(classStats).sort((a, b) => (b[1].pos + b[1].neg) - (a[1].pos + a[1].neg)).map(([clsName, s]) => {
+          let total = s.pos + s.neg || 1;
+          let posPct = Math.round(s.pos / total * 100);
+          return `
+            <div style="margin-bottom: 8px;">
+              <div style="display:flex; justify-content:space-between; font-size:0.75rem; font-weight:700; margin-bottom:3px;">
+                <span>${esc(clsName)}</span>
+                <span style="color:var(--text-muted);">🟢 ${s.pos} / 🔴 ${s.neg}</span>
+              </div>
+              <div style="height:8px; border-radius:5px; background:#fee2e2; overflow:hidden;">
+                <div style="height:100%; width:${posPct}%; background:#10b981;"></div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  let out = Object.values(grouped).sort((a, b) => a.student.localeCompare(b.student, 'tr'));
+  document.getElementById('report').innerHTML = comparisonHtml + (out.length ? out.map(x => `
+    <div style="margin-bottom: 12px; border: 1px solid var(--border); padding: 12px; border-radius: 12px; background:#fff;">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+        <h4 style="margin: 0; font-size: 0.95rem; font-weight:800;">${esc(x.student)} (${esc(x.cls)})</h4>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <button class="btn-muted btn-sm" style="width:auto;" onclick="openGuidanceForm('${escJs(x.student)}', '${escJs(x.cls)}')">📄 Sevk Formu</button>
+          <button class="btn-muted btn-sm" style="width:auto;" onclick="generateParentMessage('${escJs(x.key)}')">✉️ Veli Mesajı</button>
+          <span class="pill" style="background:${x.netScore >= 0 ? '#d1fae5' : '#fee2e2'}; color:${x.netScore >= 0 ? '#047857' : '#b91c1c'};">
+            Net: ${x.netScore > 0 ? '+' : ''}${x.netScore}
+          </span>
+        </div>
+      </div>
+      <div style="font-size: 0.75rem; color: var(--text-muted); margin: 6px 0 8px 0; font-weight:600;">
+        <span style="color: #10b981;">Olumlu: ${x.pos}</span> | <span style="color: #ef4444;">Olumsuz: ${x.neg}</span>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead><tr><th>Tarih</th><th>Ders</th><th>Kategori</th><th>Davranış</th><th>Kanıt</th><th>Not</th><th></th></tr></thead>
+          <tbody>
+            ${x.rows.map(r => `
+              <tr>
+                <td style="white-space:nowrap;">${esc(shortDate(r.date))}</td>
+                <td>${esc(r.lesson)}</td>
+                <td><span class="pill" style="font-size:0.65rem; background:#e0e7ff; color:#3730a3;">${esc(r.category || 'Diğer')}</span></td>
+                <td>${r.score > 0 ? '🟢' : r.score < 0 ? '🔴' : '📝'} ${esc(r.behavior)}</td>
+                <td>${r.image ? `<img src="${r.image}" class="record-img-thumb" onclick="openImgModal('${r.image}')">` : '-'}</td>
+                <td>${esc(r.note || '')}</td>
+                <td style="white-space:nowrap;">
+                  <button class="btn-muted btn-sm" style="width:auto; padding:4px 8px;" onclick="openRecordEdit('${r.id}')">✏️</button>
+                  <button class="btn-danger btn-sm" style="width:auto; padding:4px 8px;" onclick="deleteRecordConfirm('${r.id}')">🗑️</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `).join('') : '<div class="notice">Kayıt bulunamadı.</div>');
+}
+
+function printReport() {
+  let html = document.getElementById('report').innerHTML;
+  if (!html) return;
+
+  let cls = document.getElementById('reportClass').value;
+  let studentSel = document.getElementById('reportStudent');
+  let studentText = studentSel.value ? studentSel.options[studentSel.selectedIndex].text : '';
+  let from = document.getElementById('reportFrom').value;
+  let to = document.getElementById('reportTo').value;
+
+  let filterParts = [];
+  filterParts.push(cls ? ('Sınıf: ' + cls) : 'Tüm Sınıflar');
+  if (studentText) filterParts.push('Öğrenci: ' + studentText);
+  if (from) filterParts.push('Başlangıç: ' + from.split('-').reverse().join('.'));
+  if (to) filterParts.push('Bitiş: ' + to.split('-').reverse().join('.'));
+  let filterLine = filterParts.join('  •  ');
+  let generatedAt = new Date().toLocaleString('tr-TR');
+
+  let w = window.open('', '_blank');
+  if (!w) return;
+  w.document.write(`
+    <html>
+    <head>
+      <title>Öğrenci Davranış Kanaat Raporu</title>
+      <style>
+        @page { size: A4; margin: 15mm; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif; padding: 0; color: #1e293b; margin: 0; background: #fff; line-height: 1.45; }
+        .print-container { max-width: 210mm; margin: 0 auto; }
+        .print-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2.5px solid #4f46e5; padding-bottom: 12px; margin-bottom: 16px; }
+        .school-title { font-size: 0.85rem; font-weight: 800; color: #4f46e5; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+        .print-header h1 { margin: 0; font-size: 1.25rem; font-weight: 800; color: #0f172a; }
+        .print-header .sub { font-size: 0.75rem; color: #64748b; margin-top: 4px; font-weight: 600; }
+        .print-meta { text-align: right; font-size: 0.7rem; color: #64748b; line-height: 1.4; border-left: 2px solid #e2e8f0; padding-left: 12px; }
+        .print-meta b { color: #0f172a; }
+        .student-block { margin-bottom: 14px; border: 1px solid #cbd5e1; padding: 12px 14px; border-radius: 12px; page-break-inside: avoid; background: #fafafa; }
+        .student-block h4 { margin: 0 0 4px 0; font-size: 0.9rem; font-weight: 800; color: #0f172a; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+        th { background: #f8fafc; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.62rem; text-align: left; padding: 7px 10px; border-bottom: 1.5px solid #cbd5e1; }
+        td { padding: 7px 10px; font-size: 0.75rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; }
+        tr:last-child td { border-bottom: none; }
+        th:last-child, td:last-child { display: none; }
+        .record-img-thumb { width: 28px; height: 28px; object-fit: cover; border-radius: 4px; border: 1px solid #cbd5e1; }
+        .pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 0.68rem; font-weight: 800; }
+        .print-footer { margin-top: 30px; font-size: 0.65rem; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; display: flex; justify-content: space-between; }
+        @media print { body { padding: 0; } }
+      </style>
+    </head>
+    <body>
+      <div class="print-container">
+        <div class="print-header">
+          <div>
+            ${getSchoolName() ? `<div class="school-title">${esc(getSchoolName())}</div>` : ''}
+            <h1>Öğrenci Davranış Gözlem ve Kanaat Raporu</h1>
+            <div class="sub">${esc(filterLine)}</div>
+          </div>
+          <div class="print-meta">
+            ${getTeacherName() ? `Düzenleyen: <b>${esc(getTeacherName())}</b><br>` : ''}
+            Rapor Tarihi: <b>${esc(generatedAt)}</b>
+          </div>
+        </div>
+        ${html}
+        <div class="print-footer">
+          <span>Bu belge resmi gözlem amaçlı dijital asistan ile üretilmiştir.</span>
+          <span>Sayfa 1 / 1</span>
+        </div>
+      </div>
+    </body>
+    </html>
+  `.replace(/style="margin-bottom: 12px; border: 1px solid var\(--border\); padding: 12px; border-radius: 12px; background:#fff;"/g, 'class="student-block"'));
+  w.document.close();
+  setTimeout(() => w.print(), 300);
+}
+
+/* TOPLU SINIF KARNESİ PDF ÖZELLİĞİ */
+function printClassSummaryReport() {
+  let cls = document.getElementById('reportClass').value;
+  if (!cls) return alert('Lütfen toplu sınıf karnesi için üstten bir "Sınıf" seçin.');
+
+  let from = document.getElementById('reportFrom').value;
+  let to = document.getElementById('reportTo').value;
+
+  let studentsInClass = data.students.filter(s => s.className === cls).sort((a,b) => a.name.localeCompare(b.name, 'tr'));
+  if (!studentsInClass.length) return alert('Bu sınıfta kayıtlı öğrenci bulunamadı.');
+
+  let rows = data.records.filter(r => 
+    r.className === cls &&
+    (!from || r.date.slice(0, 10) >= from) &&
+    (!to || r.date.slice(0, 10) <= to)
+  );
+
+  let studentSummaries = studentsInClass.map(s => {
+    let stRecs = rows.filter(r => r.name === s.name || r.student === s.name);
+    let pos = stRecs.filter(r => r.score > 0).length;
+    let neg = stRecs.filter(r => r.score < 0).length;
+    let net = pos - neg;
+    return { name: s.name, no: s.no || '-', pos, neg, net };
+  });
+
+  let generatedAt = new Date().toLocaleString('tr-TR');
+  let w = window.open('', '_blank');
+  if (!w) return;
+  w.document.write(`
+    <html>
+    <head>
+      <title>${esc(cls)} - Sınıf Davranış Özet Karnesi</title>
+      <style>
+        @page { size: A4; margin: 15mm; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Plus Jakarta Sans', 'Segoe UI', Arial, sans-serif; padding: 0; color: #1e293b; margin: 0; background: #fff; line-height: 1.45; }
+        .print-container { max-width: 210mm; margin: 0 auto; }
+        .print-header { border-bottom: 2.5px solid #4f46e5; padding-bottom: 12px; margin-bottom: 16px; display:flex; justify-content:space-between; align-items:flex-start; }
+        .school-title { font-size: 0.85rem; font-weight: 800; color: #4f46e5; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+        h1 { margin: 0; font-size: 1.25rem; font-weight: 800; color: #0f172a; }
+        .sub { font-size: 0.75rem; color: #64748b; margin-top: 4px; font-weight: 600; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+        th { background: #f8fafc; color: #475569; text-transform: uppercase; letter-spacing: 0.04em; font-size: 0.65rem; text-align: left; padding: 8px 12px; border-bottom: 1.5px solid #cbd5e1; }
+        td { padding: 8px 12px; font-size: 0.8rem; border-bottom: 1px solid #f1f5f9; color: #334155; }
+        tr:nth-child(even) td { background: #fafafa; }
+        .print-footer { margin-top: 30px; font-size: 0.65rem; color: #94a3b8; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; display: flex; justify-content: space-between; }
+        @media print { body { padding: 0; } }
+      </style>
+    </head>
+    <body>
+      <div class="print-container">
+        <div class="print-header">
+          <div>
+            ${getSchoolName() ? `<div class="school-title">${esc(getSchoolName())}</div>` : ''}
+            <h1>${esc(cls)} Sınıfı Toplu Davranış Özet Karnesi</h1>
+            <div class="sub">Değerlendirme Aralığı: ${from ? from.split('-').reverse().join('.') : 'Başlangıç'} - ${to ? to.split('-').reverse().join('.') : 'Bugün'}</div>
+          </div>
+          <div style="text-align:right; font-size:0.7rem; color:#64748b;">
+            ${getTeacherName() ? `Öğretmen: <b>${esc(getTeacherName())}</b><br>` : ''}
+            Tarih: <b>${esc(generatedAt)}</b>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 50px;">No</th>
+              <th>Öğrenci Adı Soyadı</th>
+              <th style="text-align:center; width: 90px; color:#10b981;">Olumlu (+1)</th>
+              <th style="text-align:center; width: 90px; color:#ef4444;">Olumsuz (-1)</th>
+              <th style="text-align:center; width: 90px;">Net Puan</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${studentSummaries.map(s => `
+              <tr>
+                <td><b>${esc(s.no)}</b></td>
+                <td><b>${esc(s.name)}</b></td>
+                <td style="text-align:center; font-weight:700; color:#10b981;">${s.pos}</td>
+                <td style="text-align:center; font-weight:700; color:#ef4444;">${s.neg}</td>
+                <td style="text-align:center; font-weight:800; color:${s.net >= 0 ? '#047857' : '#b91c1c'};">${s.net > 0 ? '+' : ''}${s.net}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        <div class="print-footer">
+          <span>Çubuk Yavuz Selim Ortaokulu - Sınıf Yönetim Asistanı</span>
+          <span>Sayfa 1 / 1</span>
+        </div>
+      </div>
+    </body>
+    </html>
+  `);
+  w.document.close();
+  setTimeout(() => w.print(), 300);
+}
+
+function exportCSV() {
+  let rows = [['Tarih', 'Öğrenci', 'Sınıf', 'Ders', 'Kategori', 'Davranış', 'Puan', 'Not'], ...data.records.map(r => [r.dateText, r.student, r.className, r.lesson, r.category || 'Diğer', r.behavior, r.score, r.note || ''])];
+  let csv = '\ufeff' + rows.map(row => row.map(v => `"${String(v ?? '').replaceAll('"', '""')}"`).join(';')).join('\n');
+  let a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'davranis_kayitlari_v7.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function clearAll() {
+  let pin = localStorage.getItem('ogrenci_davranis_pin_v7');
+  if (pin) {
+    let entered = prompt('Verileri sıfırlamak için PIN girin:');
+    if (entered === null) return;
+    if (entered !== pin) { alert('Yanlış PIN. İşlem iptal edildi.'); return; }
+  }
+  if (confirm('Tüm veriler silinecek. Emin misiniz?')) {
+    data = { students: [], records: [], parentLogs: {}, customBehaviors: defaultBehaviors };
+    save(); toast('Sıfırlandı');
+  }
+}
+
+function archivePeriod() {
+  if (!data.records.length) return alert('Arşivlenecek bir kayıt yok.');
+  if (!confirm('Önce mevcut veriler yedek olarak indirilecek, ardından TÜM DAVRANIŞ KAYITLARI silinecek. Yeni döneme sıfır kayıtla başlamak istiyor musunuz?')) return;
+  exportBackupJSON();
+  setTimeout(() => {
+    data.records = [];
+    save();
+    if (!document.getElementById('reportCard').classList.contains('hidden')) buildReport();
+    toast('Dönem arşivlendi, kayıtlar temizlendi ✓');
+  }, 400);
+}
+
+function loadSheetJS() {
+  return new Promise((resolve, reject) => {
+    let s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+    s.onload = resolve; s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+function importRows(rows) {
+  let added = 0;
+  rows.forEach(r => {
+    let keys = Object.keys(r);
+    let get = names => { let k = keys.find(x => names.includes(norm(x))); return k ? r[k] : ''; };
+    let name = get(['ad soyad','adsoyad','öğrenci','öğrenci adı','adı soyadı']) || ((get(['ad','adı'])) + ' ' + (get(['soyad','soyadı']))).trim();
+    let grade = get(['sınıf','sinif','sınıfı','sinifi']), branch = get(['şube','sube']), no = get(['öğrenci no','ogrenci no','no','numara']);
+    if (!name) return;
+    let className = (String(grade).trim() + (branch ? '-' + String(branch).trim().toUpperCase() : '')).trim();
+    if (!className) className = 'Belirtilmemiş';
+    let id = String(no || name + '|' + className).trim();
+    if (!data.students.some(s => s.id === id)) {
+      data.students.push({ id, name: String(name).trim(), className, no: String(no).trim(), photo: null });
+      added++;
+    }
+  });
+  save();
+  toast(added + ' öğrenci eklendi');
+}
+
+function parseCSV(text) {
+  let lines = text.replace(/^\uFEFF/, '').split(/\r?\n/).filter(x => x.trim());
+  if (!lines.length) return [];
+  let delim = lines[0].includes(';') ? ';' : ',';
+  let parseLine = l => l.split(delim).map(x => x.trim().replace(/^"|"$/g, '').replaceAll('""', '"'));
+  let head = parseLine(lines[0]);
+  return lines.slice(1).map(l => { let a = parseLine(l), o = {}; head.forEach((h, i) => o[h] = a[i] || ''); return o; });
+}
+
+document.getElementById('excel').onchange = async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    if (file.name.toLowerCase().endsWith('.csv')) {
+      importRows(parseCSV(await file.text()));
+    } else {
+      if (!window.XLSX) await loadSheetJS();
+      let buf = await file.arrayBuffer(), wb = XLSX.read(buf, { type: 'array' }), ws = wb.Sheets[wb.SheetNames[0]];
+      importRows(XLSX.utils.sheet_to_json(ws, { defval: '' }));
+    }
+  } catch (err) { alert('Dosya okunamadı.\n' + err); }
+  e.target.value = '';
+};
+
+function saveSchedule() { localStorage.setItem('ogrenci_davranis_schedule_v7', JSON.stringify(schedule)); }
+
+function importScheduleRows(rows) {
+  let out = [];
+  rows.forEach(r => {
+    let keys = Object.keys(r);
+    let get = names => { let k = keys.find(x => names.includes(norm(x))); return k ? r[k] : ''; };
+    let day = get(['gün','gun','gün adı','gun adi']), start = get(['başlangıç','baslangic','başlangıç saati','baslangic saati','saat']), end = get(['bitiş','bitis','bitiş saati','bitis saati']), cls = get(['sınıf','sinif','sınıfı','sinifi']), lesson = get(['ders','ders adı','ders adi']);
+    if (day && start && end && cls) {
+      out.push({ day: String(day).trim(), start: String(start).trim(), end: String(end).trim(), className: String(cls).trim(), lesson: String(lesson || 'Diğer').trim() });
+    }
+  });
+  if (out.length) {
+    schedule = out;
+    saveSchedule();
+    toast(out.length + ' ders programı yüklendi');
+    updateLiveTimer();
+  } else {
+    alert('Program okunamadı.');
+  }
+}
+
+document.getElementById('scheduleFile').onchange = async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    if (file.name.toLowerCase().endsWith('.csv')) {
+      importScheduleRows(parseCSV(await file.text()));
+    } else {
+      if (!window.XLSX) await loadSheetJS();
+      let buf = await file.arrayBuffer(), wb = XLSX.read(buf, { type: 'array' }), ws = wb.Sheets[wb.SheetNames[0]];
+      importScheduleRows(XLSX.utils.sheet_to_json(ws, { defval: '' }));
+    }
+  } catch (err) { alert('Ders programı okunamadı.\n' + err); }
+  e.target.value = '';
+};
+
+document.getElementById('classSel').onchange = () => { selectedStudentIds.clear(); render(); };
+document.getElementById('students').addEventListener('pointerdown', onSeatPointerDown);
+document.getElementById('search').oninput = render;
+document.getElementById('reportClass').onchange = updateReportStudents;
+document.getElementById('lockPinInput').addEventListener('keydown', e => { if (e.key === 'Enter') attemptUnlock(); });
+['click', 'keydown', 'touchstart', 'pointerdown'].forEach(evt => document.addEventListener(evt, resetAutoLockTimer));
+
+initTheme();
+checkLockOnLoad();
+updatePinButtonLabel();
+loadInstitutionInfo();
+resetAutoLockTimer();
+render();
+updateLiveTimer();
+setInterval(updateLiveTimer, 30000);
+</script>
+</body>
+</html>
